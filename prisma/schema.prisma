@@ -5,22 +5,54 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["public", "tenantSpecific"]
 }
 
 model Accounts {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid())
   firstName String   @map("first_name")
   lastName  String   @map("last_name")
   email     String   @unique
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  shops Shops[]
 
   @@map("accounts")
+  @@schema("public")
+}
+
+model Categories {
+  id        Int      @id @default(autoincrement())
+  name      String
+  parentId  Int?     @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  parent   Categories?  @relation("chilren", fields: [parentId], references: [id])
+  children Categories[] @relation("chilren")
+
+  @@map("categories")
+  @@schema("public")
+}
+
+model Shops {
+  id        String   @id @default(uuid())
+  name      String
+  accountId String   @map("account_id")
+  account   Accounts @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("shops")
+  @@schema("tenantSpecific")
 }
