@@ -53,6 +53,125 @@ model Shops {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  customProductTypes CustomProductType[]
+  uploadedImages     UploadedImages[]
+
   @@map("shops")
+  @@schema("tenantSpecific")
+}
+
+model Products {
+  id                  Int     @id @default(autoincrement())
+  shopId              String  @map("shop_id")
+  categoryId          Int     @map("category_id")
+  name                String
+  description         String?
+  isActive            Boolean @map("is_active")
+  price               Float
+  compareAtPrice      Float   @map("compare_at_price")
+  availableQuantity   Int     @map("available_quantity")
+  incomingQuantity    Int     @map("incoming_quantity")
+  soldNumber          Int     @map("sold_number")
+  customProductTypeId Int?    @map("custom_product_type_id")
+
+  images            ProductsImages[]
+  variantOptions    VariantOptions[]
+  customProductType CustomProductType? @relation(fields: [customProductTypeId], references: [id])
+
+  @@map("products")
+  @@schema("tenantSpecific")
+}
+
+model ProductsImages {
+  id              Int @id @default(autoincrement())
+  productId       Int @map("product_id")
+  uploadedImageId Int @map("uploaded_image_id")
+
+  product       Products       @relation(fields: [productId], references: [id])
+  uploadedImage UploadedImages @relation(fields: [uploadedImageId], references: [id])
+
+  @@map("products_images")
+  @@schema("tenantSpecific")
+}
+
+model Variants {
+  id                Int   @id @default(autoincrement())
+  productId         Int   @map("product_id")
+  price             Float
+  compareAtPrice    Float @map("compare_at_price")
+  availableQuantity Int   @map("available_quantity")
+  incomingQuantity  Int   @map("incoming_quantity")
+  soldNumber        Int   @map("sold_number")
+  imageId           Int?  @map("image_id")
+
+  image UploadedImages? @relation(fields: [imageId], references: [id])
+
+  @@map("variants")
+  @@schema("tenantSpecific")
+}
+
+model VariantOptions {
+  id        Int    @id @default(autoincrement())
+  productId Int    @map("product_id")
+  name      String
+  // displayedType
+
+  product                Products                    @relation(fields: [productId], references: [id])
+  values                 OptionValues[]
+  variantsWithThisOption VariantHasOptionWithValue[]
+
+  @@map("variant_options")
+  @@schema("tenantSpecific")
+}
+
+model OptionValues {
+  id       Int    @id @default(autoincrement())
+  optionId Int    @map("option_id")
+  value    String
+  // displayedType
+
+  option                VariantOptions              @relation(fields: [optionId], references: [id])
+  variantsWithThisValue VariantHasOptionWithValue[]
+
+  @@map("option_values")
+  @@schema("tenantSpecific")
+}
+
+model VariantHasOptionWithValue {
+  id       Int @id @default(autoincrement())
+  optionId Int @map("option_id")
+  valueId  Int @map("value_id")
+  // displayedType
+
+  option VariantOptions @relation(fields: [optionId], references: [id])
+  value  OptionValues   @relation(fields: [valueId], references: [id])
+
+  @@map("variant_has_option_with_value")
+  @@schema("tenantSpecific")
+}
+
+model CustomProductType {
+  id     Int    @id @default(autoincrement())
+  shopId String @map("shop_id")
+  name   String
+
+  products Products[]
+  shop     Shops      @relation(fields: [shopId], references: [id])
+
+  @@map("custom_product_types")
+  @@schema("tenantSpecific")
+}
+
+model UploadedImages {
+  id       Int    @id @default(autoincrement())
+  shopId   String @map("shop_id")
+  fileName String @map("file_name")
+  imageUrl String @map("image_url")
+
+  products ProductsImages[]
+  variant  Variants[]
+  shop     Shops            @relation(fields: [shopId], references: [id])
+
+  @@map("uploaded_images")
   @@schema("tenantSpecific")
 }

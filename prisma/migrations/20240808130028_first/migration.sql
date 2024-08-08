@@ -1,3 +1,29 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "tenantSpecific";
+
+-- CreateTable
+CREATE TABLE "public"."accounts" (
+    "id" TEXT NOT NULL,
+    "first_name" TEXT NOT NULL,
+    "last_name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "accounts_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."categories" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "parent_id" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "tenantSpecific"."shops" (
@@ -96,6 +122,12 @@ CREATE TABLE "tenantSpecific"."uploaded_images" (
 
     CONSTRAINT "uploaded_images_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "accounts_email_key" ON "public"."accounts"("email");
+
+-- AddForeignKey
+ALTER TABLE "public"."categories" ADD CONSTRAINT "categories_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tenantSpecific"."shops" ADD CONSTRAINT "shops_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "public"."accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
