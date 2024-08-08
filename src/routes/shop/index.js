@@ -1,9 +1,10 @@
 const router = require("express").Router();
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 const shopController = require("../../controllers/shop");
 const { asyncHandler } = require("../../middlewares/asyncHandler");
 const { authentication } = require("../../middlewares/auth");
 const { validate } = require("../../middlewares/validation");
+const { validShopId } = require("../../middlewares/validation/shop");
 
 router.post(
   "/",
@@ -14,5 +15,13 @@ router.post(
 );
 
 router.get("/", authentication, asyncHandler(shopController.getByAccountId));
+
+router.use(
+  "/:shopId/products",
+  authentication,
+  param("shopId").custom(validShopId),
+  validate,
+  require("../product")
+);
 
 module.exports = router;

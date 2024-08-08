@@ -6,6 +6,7 @@ const {
 } = require("../utils");
 const { v4 } = require("uuid");
 const db = require("../helpers/db");
+const { SHOPS } = require("../constants/tenantSpecificRelations");
 
 const shopService = {
   create: async ({ accountId, name }) => {
@@ -16,18 +17,28 @@ const shopService = {
       updated_at: new Date(),
     };
 
-    const relation = getTenantSpecificRelation(accountId, "shops");
+    const relation = getTenantSpecificRelation(accountId, SHOPS);
     const result = await db.create(relation, newShop);
 
     return result;
   },
 
   getByAccountId: async ({ accountId }) => {
-    const relation = getTenantSpecificRelation(accountId, "shops");
+    const relation = getTenantSpecificRelation(accountId, SHOPS);
 
     const result = await sql`select * from ${sql(relation)}`;
 
     return result;
+  },
+
+  getShopById: async ({ accountId, shopId }) => {
+    const relation = getTenantSpecificRelation(accountId, SHOPS);
+
+    const result = await sql`select * from ${sql(
+      relation
+    )} where id = ${shopId}`;
+
+    return result[0];
   },
 };
 
