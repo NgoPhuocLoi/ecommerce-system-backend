@@ -53,20 +53,51 @@ model Shops {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  customProductTypes CustomProductType[]
-  uploadedImages     UploadedImages[]
-
   @@map("shops")
-  @@schema("tenantSpecific")
+  @@schema("public")
 }
+
+model PaymentMethods {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  @@map("payment_methods")
+  @@schema("public")
+}
+
+model OrderStatus {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  @@map("order_status")
+  @@schema("public")
+}
+
+model PaymentStatus {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  @@map("payment_status")
+  @@schema("public")
+}
+
+model Permissions {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  @@map("permissions")
+  @@schema("public")
+}
+
+// -----------------------------------------------
 
 model Products {
   id                  Int     @id @default(autoincrement())
-  shopId              String  @map("shop_id")
   categoryId          Int     @map("category_id")
   name                String
   description         String?
   isActive            Boolean @map("is_active")
+  cost                Float
   price               Float
   compareAtPrice      Float   @map("compare_at_price")
   availableQuantity   Int     @map("available_quantity")
@@ -75,7 +106,7 @@ model Products {
   customProductTypeId Int?    @map("custom_product_type_id")
 
   images            ProductsImages[]
-  variantOptions    VariantOptions[]
+  ProductOptions    ProductOptions[]
   customProductType CustomProductType? @relation(fields: [customProductTypeId], references: [id])
 
   @@map("products")
@@ -104,23 +135,23 @@ model Variants {
   soldNumber        Int   @map("sold_number")
   imageId           Int?  @map("image_id")
 
-  image UploadedImages? @relation(fields: [imageId], references: [id])
+  image                   UploadedImages?             @relation(fields: [imageId], references: [id])
+  variantOptionWithValues VariantHasOptionWithValue[]
 
   @@map("variants")
   @@schema("tenantSpecific")
 }
 
-model VariantOptions {
+model ProductOptions {
   id        Int    @id @default(autoincrement())
   productId Int    @map("product_id")
   name      String
-  // displayedType
 
   product                Products                    @relation(fields: [productId], references: [id])
   values                 OptionValues[]
   variantsWithThisOption VariantHasOptionWithValue[]
 
-  @@map("variant_options")
+  @@map("product_options")
   @@schema("tenantSpecific")
 }
 
@@ -130,7 +161,7 @@ model OptionValues {
   value    String
   // displayedType
 
-  option                VariantOptions              @relation(fields: [optionId], references: [id])
+  option                ProductOptions              @relation(fields: [optionId], references: [id])
   variantsWithThisValue VariantHasOptionWithValue[]
 
   @@map("option_values")
@@ -138,25 +169,24 @@ model OptionValues {
 }
 
 model VariantHasOptionWithValue {
-  id       Int @id @default(autoincrement())
-  optionId Int @map("option_id")
-  valueId  Int @map("value_id")
-  // displayedType
+  id        Int @id @default(autoincrement())
+  variantId Int @map("variant_id")
+  optionId  Int @map("option_id")
+  valueId   Int @map("value_id")
 
-  option VariantOptions @relation(fields: [optionId], references: [id])
-  value  OptionValues   @relation(fields: [valueId], references: [id])
+  option  ProductOptions @relation(fields: [optionId], references: [id])
+  value   OptionValues   @relation(fields: [valueId], references: [id])
+  variant Variants       @relation(fields: [variantId], references: [id])
 
   @@map("variant_has_option_with_value")
   @@schema("tenantSpecific")
 }
 
 model CustomProductType {
-  id     Int    @id @default(autoincrement())
-  shopId String @map("shop_id")
-  name   String
+  id   Int    @id @default(autoincrement())
+  name String
 
   products Products[]
-  shop     Shops      @relation(fields: [shopId], references: [id])
 
   @@map("custom_product_types")
   @@schema("tenantSpecific")
@@ -164,14 +194,21 @@ model CustomProductType {
 
 model UploadedImages {
   id       Int    @id @default(autoincrement())
-  shopId   String @map("shop_id")
   fileName String @map("file_name")
   imageUrl String @map("image_url")
 
   products ProductsImages[]
   variant  Variants[]
-  shop     Shops            @relation(fields: [shopId], references: [id])
 
   @@map("uploaded_images")
+  @@schema("tenantSpecific")
+}
+
+model OnlineShopPages {
+  id     Int    @id @default(autoincrement())
+  name   String
+  layout String
+
+  @@map("online_shop_pages")
   @@schema("tenantSpecific")
 }
