@@ -1,17 +1,19 @@
-const { Forbidden, UnAuthorized } = require("../responses/error");
+const { Forbidden, UnAuthorized, BadRequest } = require("../responses/error");
 const { asyncHandler } = require("../middlewares/asyncHandler");
 const jwt = require("jsonwebtoken");
+const prisma = require("../config/prismaClient");
+const { getShopIdFromRequest } = require("../utils");
 
-const permission = (permittedRoles) => (req, res, next) => {
+const permission = (permittedRoles) => (req, _, next) => {
   const accountRole = req.account.role;
 
   if (!accountRole || !permittedRoles.includes(accountRole))
-    throw new Forbidden("You don't have permission to perform this action");
+    next(new Forbidden("You don't have permission to perform this action"));
 
   next();
 };
 
-const authentication = (req, res, next) => {
+const authentication = (req, _, next) => {
   try {
     const token = getTokenFromRequest(req);
 
@@ -19,20 +21,46 @@ const authentication = (req, res, next) => {
 
     next();
   } catch (error) {
-    throw new UnAuthorized("Invalid token");
+    next(new UnAuthorized("Invalid token"));
+  }
+};
+
+const requiredValidShopIdHeader = async (req, _, next) => {
+  const shopId = getShopIdFromRequest(req);
+  const accountId = req.account.accountId;
+
+  if (!shopId) {
+    next(new BadRequest("Shop ID is missing"));
+  }
+
+  try {
+    const foundShop = await prisma.shops.findUnique({
+      where: { id: shopId, accountId: accountId },
+    });
+
+    if (!foundShop) {
+      next(new BadRequest("Invalid shop ID"));
+    }
+
+    req.shopId = shopId;
+
+    next();
+  } catch (error) {
+    console.log(error);
+    next(new BadRequest("Invalid shop ID"));
   }
 };
 
 const getTokenFromRequest = (req) => {
   const requestBearer = req.headers.authorization;
 
-  if (!requestBearer) throw new UnAuthorized("Authorization required");
+  if (!requestBearer) next(new UnAuthorized("Authorization required"));
 
   const token = requestBearer.split(" ")[1];
 
-  if (!token) throw new UnAuthorized("Invalid token");
+  if (!token) next(new UnAuthorized("Invalid token"));
 
   return token;
 };
 
-module.exports = { authentication, permission };
+module.exports = { authentication, permission, requiredValidShopIdHeader };

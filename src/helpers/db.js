@@ -7,7 +7,31 @@ const create = async (relation, data) => {
   return result[0];
 };
 
-const find = async (relation, filter) => {};
+const find = async (relation, filter) => {
+  const result = await sql`SELECT * FROM ${sql(relation)};`;
+  return result;
+};
+
+const updateById = async (relation, id, updatedData) => {
+  const result = await sql`UPDATE ${sql(relation)} SET ${sql(
+    updatedData
+  )} WHERE id = ${id} RETURNING *;`;
+
+  return result;
+};
+
+const deleteById = async (relation, id, updatedData) => {
+  const result = await sql`DELETE FROM ${sql(
+    relation
+  )} WHERE id = ${id} RETURNING *;`;
+
+  return result;
+};
+
+const findById = async (relation, id) => {
+  const result = await sql`SELECT * FROM ${sql(relation)} WHERE id = ${id} ;`;
+  return result[0];
+};
 
 const createTenantSchema = async (prismaClient, id) => {
   const schemaName = id.replace(/-/g, "_");
@@ -32,4 +56,11 @@ const createTenantSchema = async (prismaClient, id) => {
   }
 };
 
-module.exports = { create, createTenantSchema };
+module.exports = {
+  create,
+  createTenantSchema,
+  find,
+  updateById,
+  findById,
+  deleteById,
+};

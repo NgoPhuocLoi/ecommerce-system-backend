@@ -1,3 +1,3 @@
-const SHOPS = "shops";
+const PRODUCTS = "products";
 
-module.exports = { SHOPS };
+module.exports = { PRODUCTS };
