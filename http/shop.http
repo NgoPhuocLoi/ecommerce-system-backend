@@ -1,0 +1,16 @@
+@Token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiJmNjlhMzg1YS1mZjFlLTQ5ODYtODUwNC0xODgxYjVjNDI0OTgiLCJpZCI6IjU3MTNmNmYwLTAwMTgtNGZiYi04MzUxLTVkNGIwM2VhNDRlOSIsImlhdCI6MTcyNDU2NDkyNywiZXhwIjoxNzI0NTY1ODI3fQ.F-pPgaLWYDF_1UKJsueTfuUPvGt3Aws00Ez9Jm6AkJ4
+
+# Create new shop
+POST http://localhost:5000/api/shops
+Authorization: Bearer {{Token}}
+Content-Type: application/json
+
+{
+    "name": "Store 1"
+}
+
+###
+
+#Get shops
+GET http://localhost:5000/api/shops
+Authorization: Bearer {{Token}}

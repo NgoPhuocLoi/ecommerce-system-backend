@@ -1,0 +1,52 @@
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiJmNjlhMzg1YS1mZjFlLTQ5ODYtODUwNC0xODgxYjVjNDI0OTgiLCJpZCI6IjRhMGZlMzQwLTI2MDYtNDZiYS05NDQ2LWZkNjY0MjliYjI5NSIsImlhdCI6MTcyNDU2NjA0NCwiZXhwIjoxNzI0NTY2OTQ0fQ.6A_PbEUM8RqVXpJBgGGINgraz2E10X0gCnpYNeFN5Ro
+@shopId=c0b765f2-1596-4e21-906d-43c4ae68549d
+
+# Create new product
+POST http://localhost:5000/api/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+x-shop-id: {{shopId}}
+
+{
+    "categoryId": 1,
+    "description": "First product",
+    "name": "First product",
+    "isActive":true,
+    "price": 200000,
+    "compareAtPrice": 280000,
+    "cost": 150000,
+    "availableQuantity":0,
+    "incomingQuantity":0,
+    "soldNumber":0,
+    "customProductTypeId":null
+}
+
+###
+# Find all
+GET http://localhost:5000/api/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+x-shop-id: {{shopId}}
+
+###
+
+# Update product
+PUT http://localhost:5000/api/products/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+x-shop-id: {{shopId}}
+
+{
+
+    "availableQuantity": 20
+}
+
+###
+
+# Delete product
+DELETE http://localhost:5000/api/products/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+x-shop-id: {{shopId}}
+
+
