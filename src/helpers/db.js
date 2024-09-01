@@ -7,8 +7,22 @@ const create = async (relation, data) => {
   return result[0];
 };
 
-const find = async (relation, filter) => {
-  const result = await sql`SELECT * FROM ${sql(relation)};`;
+const find = async (relation, custom) => {
+  // const prepare = ``;
+  const findAll = sql`SELECT * FROM ${sql(relation)};`;
+  const findWithCondition = sql`SELECT * FROM ${sql(relation)} WHERE ${sql(
+    custom
+  )};`;
+  const prepare = custom ? findWithCondition : findAll;
+  const result = await prepare;
+  return result;
+};
+
+const joinFind = async (relation, custom) => {
+  // const prepare = ``;
+  const result = await sql`SELECT * FROM ${sql(
+    relation
+  )} p INNER JOIN public.categories c ON p.category_id = c.id;`;
   return result;
 };
 
@@ -63,4 +77,5 @@ module.exports = {
   updateById,
   findById,
   deleteById,
+  joinFind,
 };

@@ -3,6 +3,7 @@ const shopService = require("../services/shop");
 
 const shopController = {
   create: async (req, res) => {
+    console.log(req.body)
     new CreatedResponse({
       metadata: await shopService.create({
         accountId: req.account.accountId,

@@ -1,6 +1,6 @@
-const { register, login } = require("../../controllers/auth");
+const { register, login, checkValidToken } = require("../../controllers/auth");
 const router = require("express").Router();
-const { body } = require("express-validator");
+const { body, check } = require("express-validator");
 const { validate, uniqueEmail } = require("../../middlewares/validation");
 const { asyncHandler } = require("../../middlewares/asyncHandler");
 const { authentication } = require("../../middlewares/auth");
@@ -28,6 +28,7 @@ router.post(
   asyncHandler(login),
 );
 
+router.get("/", authentication, asyncHandler(checkValidToken));
 // router.post(
 //   "/loginWithGoogle",
 //   asyncHandler(AuthController.loginWithGoogle)

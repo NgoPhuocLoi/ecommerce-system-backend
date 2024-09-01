@@ -8,8 +8,8 @@ const { validate } = require("../../middlewares/validation");
 router.post(
   "/",
   authentication,
-  body("name").notEmpty().withMessage("Store's name can not be blank"),
-  validate,
+  // body("name").notEmpty().withMessage("Store's name can not be blank"),
+  // validate,
   asyncHandler(shopController.create)
 );
 

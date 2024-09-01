@@ -19,6 +19,11 @@ router.post(
     .withMessage("compareAtPrice is required")
     .isNumeric()
     .withMessage("compareAtPrice must be a numeric"),
+  body("cost")
+    .notEmpty()
+    .withMessage("Cost is required")
+    .isNumeric()
+    .withMessage("cost must be a numeric"),
   body("categoryId").custom(validCategory),
   validate,
   asyncHandler(productController.create)

@@ -20,6 +20,13 @@ const authController = {
       metadata: await authService.login(req.body),
     }).send(res);
   },
+
+  checkValidToken: async (req, res) => {
+    new OKResponse({
+      message: "Token is valid",
+      metadata: req.account,
+    }).send(res);
+  }
 };
 
 module.exports = authController;
