@@ -9,5 +9,14 @@ const uploadedImagesController = {
       metadata: await uploadedImagesService.getByTenantId(shopId),
     }).send(res);
   },
+
+  getOne: async (req, res) => {
+    const shopId = getShopIdFromRequest(req);
+    const publicId = req.params.publicId;
+    new OKResponse({
+      metadata: await uploadedImagesService.getByPublicId(publicId, shopId),
+    }).send(res);
+  },
 };
+
 module.exports = uploadedImagesController;

@@ -114,12 +114,12 @@ model Products {
 }
 
 model ProductsImages {
-  id              Int @id @default(autoincrement())
-  productId       Int @map("product_id")
-  uploadedImageId Int @map("uploaded_image_id")
+  id                    Int    @id @default(autoincrement())
+  productId             Int    @map("product_id")
+  uploadedImagePublicId String @map("uploaded_image_public_id")
+  url                   String
 
-  product       Products       @relation(fields: [productId], references: [id])
-  uploadedImage UploadedImages @relation(fields: [uploadedImageId], references: [id])
+  product Products @relation(fields: [productId], references: [id])
 
   @@map("products_images")
   @@schema("tenantSpecific")
@@ -133,9 +133,8 @@ model Variants {
   availableQuantity Int   @map("available_quantity")
   incomingQuantity  Int   @map("incoming_quantity")
   soldNumber        Int   @map("sold_number")
-  imageId           Int?  @map("image_id")
+  imagePublicId     Int?  @map("image_public_id")
 
-  image                   UploadedImages?             @relation(fields: [imageId], references: [id])
   variantOptionWithValues VariantHasOptionWithValue[]
 
   @@map("variants")
@@ -189,18 +188,6 @@ model CustomProductType {
   products Products[]
 
   @@map("custom_product_types")
-  @@schema("tenantSpecific")
-}
-
-model UploadedImages {
-  id       Int    @id @default(autoincrement())
-  fileName String @map("file_name")
-  imageUrl String @map("image_url")
-
-  products ProductsImages[]
-  variant  Variants[]
-
-  @@map("uploaded_images")
   @@schema("tenantSpecific")
 }
 

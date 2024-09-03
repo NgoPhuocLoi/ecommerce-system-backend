@@ -1,3 +1,4 @@
 const PRODUCTS = "products";
+const PRODUCTS_IMAGES = "products_images";
 
-module.exports = { PRODUCTS };
+module.exports = { PRODUCTS, PRODUCTS_IMAGES };

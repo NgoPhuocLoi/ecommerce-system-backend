@@ -7,13 +7,21 @@ const create = async (relation, data) => {
   return result[0];
 };
 
-const find = async (relation, custom) => {
+const createInTransaction = async (transactionSql, relation, data) => {
+  const result = await transactionSql`insert into ${transactionSql(
+    relation
+  )} ${transactionSql(data)} returning *;`;
+  return result[0];
+};
+
+const find = async (relation, custom, ...args) => {
   // const prepare = ``;
   const findAll = sql`SELECT * FROM ${sql(relation)};`;
-  const findWithCondition = sql`SELECT * FROM ${sql(relation)} WHERE ${sql(
-    custom
-  )};`;
+  const findWithCondition = sql`SELECT * FROM ${sql(
+    relation
+  )} WHERE ${custom};`;
   const prepare = custom ? findWithCondition : findAll;
+  console.log({ prepare });
   const result = await prepare;
   return result;
 };
@@ -78,4 +86,5 @@ module.exports = {
   findById,
   deleteById,
   joinFind,
+  createInTransaction,
 };

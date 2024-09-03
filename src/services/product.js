@@ -1,7 +1,11 @@
 const db = require("../helpers/db");
 const { getTenantSpecificRelation } = require("../utils");
-const { PRODUCTS } = require("../constants/tenantSpecificRelations");
+const {
+  PRODUCTS,
+  PRODUCTS_IMAGES,
+} = require("../constants/tenantSpecificRelations");
 const { CATEGORIES } = require("../constants/publicRelations");
+const sql = require("../config/db");
 
 const productService = {
   create: async (
@@ -18,6 +22,7 @@ const productService = {
       incomingQuantity = 0,
       soldNumber = 0,
       customProductTypeId = null,
+      uploadedImages = [],
     }
   ) => {
     const newProductData = {
@@ -34,8 +39,35 @@ const productService = {
       custom_product_type_id: customProductTypeId,
     };
     const productRelation = getTenantSpecificRelation(shopId, PRODUCTS);
-    const result = await db.create(productRelation, newProductData);
-    return result;
+    const test = await sql.begin(async (sql) => {
+      const result = await db.createInTransaction(
+        sql,
+        productRelation,
+        newProductData
+      );
+
+      let images = [];
+      console.log({ uploadedImages });
+      if (uploadedImages.length > 0) {
+        const productImagesRelation = getTenantSpecificRelation(
+          shopId,
+          PRODUCTS_IMAGES
+        );
+        const addProductImagesPromises = uploadedImages.map((image) => {
+          return db.createInTransaction(sql, productImagesRelation, {
+            product_id: result.id,
+            uploaded_image_public_id: image.publicId,
+            url: image.url,
+          });
+        });
+
+        images = await Promise.all(addProductImagesPromises);
+      }
+      result.images = images;
+      return result;
+    });
+
+    return test;
   },
 
   findByShopId: async (shopId, filter) => {
@@ -50,11 +82,9 @@ const productService = {
         category = categoryMapping.get(product.category_id);
       } else {
         category = await categoryQuery;
-        console.log("RUN QUERY");
         categoryMapping.set(product.category_id, category);
       }
       product.category = category;
-      console.log({ category });
     }
     return result;
   },
@@ -64,6 +94,11 @@ const productService = {
       getTenantSpecificRelation(shopId, PRODUCTS),
       productId
     );
+    const productImages = await sql`SELECT * FROM ${sql(
+      getTenantSpecificRelation(shopId, PRODUCTS_IMAGES)
+    )} WHERE product_id = ${productId};`;
+
+    result.images = productImages;
     return result;
   },
 

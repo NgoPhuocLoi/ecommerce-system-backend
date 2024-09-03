@@ -18,7 +18,8 @@ CREATE TABLE "tenantSpecific"."products" (
 CREATE TABLE "tenantSpecific"."products_images" (
     "id" SERIAL NOT NULL,
     "product_id" INTEGER NOT NULL,
-    "uploaded_image_id" INTEGER NOT NULL,
+    "uploaded_image_public_id" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
 
     CONSTRAINT "products_images_pkey" PRIMARY KEY ("id")
 );
@@ -31,7 +32,7 @@ CREATE TABLE "tenantSpecific"."variants" (
     "available_quantity" INTEGER NOT NULL,
     "incoming_quantity" INTEGER NOT NULL,
     "sold_number" INTEGER NOT NULL,
-    "image_id" INTEGER,
+    "image_public_id" INTEGER,
 
     CONSTRAINT "variants_pkey" PRIMARY KEY ("id")
 );
@@ -68,14 +69,6 @@ CREATE TABLE "tenantSpecific"."custom_product_types" (
     CONSTRAINT "custom_product_types_pkey" PRIMARY KEY ("id")
 );
 
-CREATE TABLE "tenantSpecific"."uploaded_images" (
-    "id" SERIAL NOT NULL,
-    "file_name" TEXT NOT NULL,
-    "image_url" TEXT NOT NULL,
-
-    CONSTRAINT "uploaded_images_pkey" PRIMARY KEY ("id")
-);
-
 CREATE TABLE "tenantSpecific"."online_shop_pages" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -87,10 +80,6 @@ CREATE TABLE "tenantSpecific"."online_shop_pages" (
 ALTER TABLE "tenantSpecific"."products" ADD CONSTRAINT "products_custom_product_type_id_fkey" FOREIGN KEY ("custom_product_type_id") REFERENCES "tenantSpecific"."custom_product_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE "tenantSpecific"."products_images" ADD CONSTRAINT "products_images_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "tenantSpecific"."products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE "tenantSpecific"."products_images" ADD CONSTRAINT "products_images_uploaded_image_id_fkey" FOREIGN KEY ("uploaded_image_id") REFERENCES "tenantSpecific"."uploaded_images"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
-ALTER TABLE "tenantSpecific"."variants" ADD CONSTRAINT "variants_image_id_fkey" FOREIGN KEY ("image_id") REFERENCES "tenantSpecific"."uploaded_images"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE "tenantSpecific"."product_options" ADD CONSTRAINT "product_options_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "tenantSpecific"."products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
