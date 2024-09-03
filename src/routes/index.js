@@ -13,5 +13,6 @@ router.use("/shops", require("./shop"));
 router.use(authentication);
 router.use(requiredValidShopIdHeader);
 router.use("/products", require("./product"));
+router.use("/uploaded-images", require("./uploaded-images"));
 
 module.exports = router;
