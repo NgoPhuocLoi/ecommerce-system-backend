@@ -85,6 +85,12 @@ const productService = {
         categoryMapping.set(product.category_id, category);
       }
       product.category = category;
+
+      const productImages = await sql`SELECT * FROM ${sql(
+        getTenantSpecificRelation(shopId, PRODUCTS_IMAGES)
+      )} WHERE product_id = ${product.id};`;
+      console.log({ productImages });
+      product.images = productImages;
     }
     return result;
   },

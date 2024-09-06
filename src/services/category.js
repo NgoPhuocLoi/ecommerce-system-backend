@@ -5,6 +5,17 @@ const categoryService = {
   getByQuery: async (query) => {
     const result = await prisma.categories.findMany({
       where: buildCategoryFilter(query),
+      include: {
+        recommendAttributes: {
+          include: {
+            recommendAttribute: {
+              include: {
+                values: true,
+              },
+            },
+          },
+        },
+      },
     });
     for (let category of result) {
       const hasChild = await prisma.categories.count({

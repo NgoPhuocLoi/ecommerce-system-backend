@@ -37,8 +37,9 @@ model Categories {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  parent   Categories?  @relation("chilren", fields: [parentId], references: [id])
-  children Categories[] @relation("chilren")
+  parent              Categories?                    @relation("chilren", fields: [parentId], references: [id])
+  children            Categories[]                   @relation("chilren")
+  recommendAttributes RecommendAttributeOfCategory[]
 
   @@map("categories")
   @@schema("public")
@@ -86,6 +87,40 @@ model Permissions {
   name String
 
   @@map("permissions")
+  @@schema("public")
+}
+
+model RecommendAttributes {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  values     RecommendAttributeValues[]
+  categories RecommendAttributeOfCategory[]
+
+  @@map("recommend_attributes")
+  @@schema("public")
+}
+
+model RecommendAttributeValues {
+  id                   Int    @id @default(autoincrement())
+  name                 String
+  recommendAttributeId Int    @map("recommend_attribute_id")
+
+  recommendAttribute RecommendAttributes @relation(fields: [recommendAttributeId], references: [id])
+
+  @@map("recommend_attribute_values")
+  @@schema("public")
+}
+
+model RecommendAttributeOfCategory {
+  id                   Int @id @default(autoincrement())
+  recommendAttributeId Int @map("recommend_attribute_id")
+  categoryId           Int @map("category_id")
+
+  recommendAttribute RecommendAttributes @relation(fields: [recommendAttributeId], references: [id])
+  category           Categories          @relation(fields: [categoryId], references: [id])
+
+  @@map("recommend_attribute_of_category")
   @@schema("public")
 }
 
