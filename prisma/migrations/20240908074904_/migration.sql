@@ -69,6 +69,32 @@ CREATE TABLE "public"."permissions" (
 );
 
 -- CreateTable
+CREATE TABLE "public"."recommend_attributes" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "recommend_attributes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."recommend_attribute_values" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "recommend_attribute_id" INTEGER NOT NULL,
+
+    CONSTRAINT "recommend_attribute_values_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."recommend_attribute_of_category" (
+    "id" SERIAL NOT NULL,
+    "recommend_attribute_id" INTEGER NOT NULL,
+    "category_id" INTEGER NOT NULL,
+
+    CONSTRAINT "recommend_attribute_of_category_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "tenantSpecific"."products" (
     "id" SERIAL NOT NULL,
     "category_id" INTEGER NOT NULL,
@@ -87,11 +113,23 @@ CREATE TABLE "tenantSpecific"."products" (
 );
 
 -- CreateTable
+CREATE TABLE "tenantSpecific"."uploaded_images" (
+    "id" SERIAL NOT NULL,
+    "uploaded_public_id" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "format" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "uploaded_images_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "tenantSpecific"."products_images" (
     "id" SERIAL NOT NULL,
     "product_id" INTEGER NOT NULL,
-    "uploaded_image_public_id" TEXT NOT NULL,
-    "url" TEXT NOT NULL,
+    "uploaded_image_id" INTEGER NOT NULL,
 
     CONSTRAINT "products_images_pkey" PRIMARY KEY ("id")
 );
@@ -105,34 +143,36 @@ CREATE TABLE "tenantSpecific"."variants" (
     "available_quantity" INTEGER NOT NULL,
     "incoming_quantity" INTEGER NOT NULL,
     "sold_number" INTEGER NOT NULL,
-    "image_public_id" INTEGER,
+    "uploaded_thumbnail_id" INTEGER,
 
     CONSTRAINT "variants_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "tenantSpecific"."product_options" (
+CREATE TABLE "tenantSpecific"."product_attributes" (
     "id" SERIAL NOT NULL,
     "product_id" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
+    "recommend_attribute_id" INTEGER,
 
-    CONSTRAINT "product_options_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "product_attributes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "tenantSpecific"."option_values" (
+CREATE TABLE "tenantSpecific"."attribute_values" (
     "id" SERIAL NOT NULL,
-    "option_id" INTEGER NOT NULL,
-    "value" TEXT NOT NULL,
+    "attribute_id" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "recommend_attribute_value_id" INTEGER,
 
-    CONSTRAINT "option_values_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "attribute_values_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "tenantSpecific"."variant_has_option_with_value" (
     "id" SERIAL NOT NULL,
     "variant_id" INTEGER NOT NULL,
-    "option_id" INTEGER NOT NULL,
+    "attribute_id" INTEGER NOT NULL,
     "value_id" INTEGER NOT NULL,
 
     CONSTRAINT "variant_has_option_with_value_pkey" PRIMARY KEY ("id")
@@ -165,22 +205,46 @@ ALTER TABLE "public"."categories" ADD CONSTRAINT "categories_parent_id_fkey" FOR
 ALTER TABLE "public"."shops" ADD CONSTRAINT "shops_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "public"."accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "public"."recommend_attribute_values" ADD CONSTRAINT "recommend_attribute_values_recommend_attribute_id_fkey" FOREIGN KEY ("recommend_attribute_id") REFERENCES "public"."recommend_attributes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."recommend_attribute_of_category" ADD CONSTRAINT "recommend_attribute_of_category_recommend_attribute_id_fkey" FOREIGN KEY ("recommend_attribute_id") REFERENCES "public"."recommend_attributes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."recommend_attribute_of_category" ADD CONSTRAINT "recommend_attribute_of_category_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "tenantSpecific"."products" ADD CONSTRAINT "products_custom_product_type_id_fkey" FOREIGN KEY ("custom_product_type_id") REFERENCES "tenantSpecific"."custom_product_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tenantSpecific"."products_images" ADD CONSTRAINT "products_images_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "tenantSpecific"."products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenantSpecific"."product_options" ADD CONSTRAINT "product_options_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "tenantSpecific"."products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tenantSpecific"."products_images" ADD CONSTRAINT "products_images_uploaded_image_id_fkey" FOREIGN KEY ("uploaded_image_id") REFERENCES "tenantSpecific"."uploaded_images"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenantSpecific"."option_values" ADD CONSTRAINT "option_values_option_id_fkey" FOREIGN KEY ("option_id") REFERENCES "tenantSpecific"."product_options"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tenantSpecific"."variants" ADD CONSTRAINT "variants_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "tenantSpecific"."products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "variant_has_option_with_value_option_id_fkey" FOREIGN KEY ("option_id") REFERENCES "tenantSpecific"."product_options"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tenantSpecific"."variants" ADD CONSTRAINT "variants_uploaded_thumbnail_id_fkey" FOREIGN KEY ("uploaded_thumbnail_id") REFERENCES "tenantSpecific"."uploaded_images"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "variant_has_option_with_value_value_id_fkey" FOREIGN KEY ("value_id") REFERENCES "tenantSpecific"."option_values"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tenantSpecific"."product_attributes" ADD CONSTRAINT "product_attributes_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "tenantSpecific"."products"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."product_attributes" ADD CONSTRAINT "product_attributes_recommend_attribute_id_fkey" FOREIGN KEY ("recommend_attribute_id") REFERENCES "public"."recommend_attributes"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."attribute_values" ADD CONSTRAINT "attribute_values_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "tenantSpecific"."product_attributes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."attribute_values" ADD CONSTRAINT "attribute_values_recommend_attribute_value_id_fkey" FOREIGN KEY ("recommend_attribute_value_id") REFERENCES "public"."recommend_attribute_values"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "variant_has_option_with_value_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "tenantSpecific"."product_attributes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "variant_has_option_with_value_value_id_fkey" FOREIGN KEY ("value_id") REFERENCES "tenantSpecific"."attribute_values"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "variant_has_option_with_value_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "tenantSpecific"."variants"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

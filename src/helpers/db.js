@@ -11,7 +11,7 @@ const createInTransaction = async (transactionSql, relation, data) => {
   const result = await transactionSql`insert into ${transactionSql(
     relation
   )} ${transactionSql(data)} returning *;`;
-  return result[0];
+  return Array.isArray(data) ? result : result[0];
 };
 
 const find = async (relation, custom, ...args) => {

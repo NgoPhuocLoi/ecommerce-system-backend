@@ -17,6 +17,7 @@ const categoryService = {
         },
       },
     });
+
     for (let category of result) {
       const hasChild = await prisma.categories.count({
         where: {
@@ -26,7 +27,14 @@ const categoryService = {
 
       category.hasChild = hasChild > 0;
     }
-    return result;
+    return result.map((category) => ({
+      ...category,
+      recommendAttributes: category.recommendAttributes.map(
+        (recommendAttribute) => ({
+          ...recommendAttribute.recommendAttribute,
+        })
+      ),
+    }));
   },
 };
 

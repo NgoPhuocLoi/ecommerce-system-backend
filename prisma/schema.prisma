@@ -96,6 +96,7 @@ model RecommendAttributes {
 
   values     RecommendAttributeValues[]
   categories RecommendAttributeOfCategory[]
+  products   ProductAttributes[]
 
   @@map("recommend_attributes")
   @@schema("public")
@@ -107,6 +108,8 @@ model RecommendAttributeValues {
   recommendAttributeId Int    @map("recommend_attribute_id")
 
   recommendAttribute RecommendAttributes @relation(fields: [recommendAttributeId], references: [id])
+
+  productAttributeValues AttributeValues[]
 
   @@map("recommend_attribute_values")
   @@schema("public")
@@ -140,77 +143,103 @@ model Products {
   soldNumber          Int     @map("sold_number")
   customProductTypeId Int?    @map("custom_product_type_id")
 
-  images            ProductsImages[]
-  ProductOptions    ProductOptions[]
   customProductType CustomProductType? @relation(fields: [customProductTypeId], references: [id])
+
+  images     ProductsImages[]
+  attributes ProductAttributes[]
+  Variants   Variants[]
 
   @@map("products")
   @@schema("tenantSpecific")
 }
 
-model ProductsImages {
-  id                    Int    @id @default(autoincrement())
-  productId             Int    @map("product_id")
-  uploadedImagePublicId String @map("uploaded_image_public_id")
-  url                   String
+model UploadedImages {
+  id               Int      @id @default(autoincrement())
+  uploadedPublicId String   @map("uploaded_public_id")
+  url              String
+  format           String
+  size             Int
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at")
 
-  product Products @relation(fields: [productId], references: [id])
+  ProductsImages    ProductsImages[]
+  variantThumbnails Variants[]
+
+  @@map("uploaded_images")
+  @@schema("tenantSpecific")
+}
+
+model ProductsImages {
+  id              Int @id @default(autoincrement())
+  productId       Int @map("product_id")
+  uploadedImageId Int @map("uploaded_image_id")
+
+  product Products       @relation(fields: [productId], references: [id])
+  image   UploadedImages @relation(fields: [uploadedImageId], references: [id])
 
   @@map("products_images")
   @@schema("tenantSpecific")
 }
 
 model Variants {
-  id                Int   @id @default(autoincrement())
-  productId         Int   @map("product_id")
-  price             Float
-  compareAtPrice    Float @map("compare_at_price")
-  availableQuantity Int   @map("available_quantity")
-  incomingQuantity  Int   @map("incoming_quantity")
-  soldNumber        Int   @map("sold_number")
-  imagePublicId     Int?  @map("image_public_id")
+  id                    Int   @id @default(autoincrement())
+  productId             Int   @map("product_id")
+  price                 Float
+  compareAtPrice        Float @map("compare_at_price")
+  availableQuantity     Int   @map("available_quantity")
+  incomingQuantity      Int   @map("incoming_quantity")
+  soldNumber            Int   @map("sold_number")
+  uploaded_thumbnail_id Int?  @map("uploaded_thumbnail_id")
 
-  variantOptionWithValues VariantHasOptionWithValue[]
+  product   Products        @relation(fields: [productId], references: [id])
+  thumbnail UploadedImages? @relation(fields: [uploaded_thumbnail_id], references: [id])
+
+  attributeWithValue VariantHasAttributeWithValue[]
 
   @@map("variants")
   @@schema("tenantSpecific")
 }
 
-model ProductOptions {
-  id        Int    @id @default(autoincrement())
-  productId Int    @map("product_id")
-  name      String
+model ProductAttributes {
+  id                   Int    @id @default(autoincrement())
+  productId            Int    @map("product_id")
+  name                 String
+  recommendAttributeId Int?   @map("recommend_attribute_id")
 
-  product                Products                    @relation(fields: [productId], references: [id])
-  values                 OptionValues[]
-  variantsWithThisOption VariantHasOptionWithValue[]
+  product            Products             @relation(fields: [productId], references: [id])
+  recommendAttribute RecommendAttributes? @relation(fields: [recommendAttributeId], references: [id])
 
-  @@map("product_options")
+  values                       AttributeValues[]
+  variantHasAttributeWithValue VariantHasAttributeWithValue[]
+
+  @@map("product_attributes")
   @@schema("tenantSpecific")
 }
 
-model OptionValues {
-  id       Int    @id @default(autoincrement())
-  optionId Int    @map("option_id")
-  value    String
-  // displayedType
+model AttributeValues {
+  id                        Int    @id @default(autoincrement())
+  attributeId               Int    @map("attribute_id")
+  name                      String
+  recommendAttributeValueId Int?   @map("recommend_attribute_value_id")
 
-  option                ProductOptions              @relation(fields: [optionId], references: [id])
-  variantsWithThisValue VariantHasOptionWithValue[]
+  attribute               ProductAttributes         @relation(fields: [attributeId], references: [id])
+  recommendAttributeValue RecommendAttributeValues? @relation(fields: [recommendAttributeValueId], references: [id])
 
-  @@map("option_values")
+  variantHasAttributeWithValue VariantHasAttributeWithValue[]
+
+  @@map("attribute_values")
   @@schema("tenantSpecific")
 }
 
-model VariantHasOptionWithValue {
-  id        Int @id @default(autoincrement())
-  variantId Int @map("variant_id")
-  optionId  Int @map("option_id")
-  valueId   Int @map("value_id")
+model VariantHasAttributeWithValue {
+  id          Int @id @default(autoincrement())
+  variantId   Int @map("variant_id")
+  attributeId Int @map("attribute_id")
+  valueId     Int @map("value_id")
 
-  option  ProductOptions @relation(fields: [optionId], references: [id])
-  value   OptionValues   @relation(fields: [valueId], references: [id])
-  variant Variants       @relation(fields: [variantId], references: [id])
+  attribute ProductAttributes @relation(fields: [attributeId], references: [id])
+  value     AttributeValues   @relation(fields: [valueId], references: [id])
+  variant   Variants          @relation(fields: [variantId], references: [id])
 
   @@map("variant_has_option_with_value")
   @@schema("tenantSpecific")

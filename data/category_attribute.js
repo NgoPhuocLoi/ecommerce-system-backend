@@ -2,13 +2,13 @@ const categoryData = require("./categories.json").verticals;
 const attributesData = require("./attributes.json").attributes;
 const prisma = require("../src/config/prismaClient");
 const fs = require("fs");
-const attributeIdMapping = require("./attributeIdMapping.json");
 
 async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function main() {
+  const attributeIdMapping = require("./attributeIdMapping.json");
   const mapping = new Map();
   attributeIdMapping.forEach((a) => {
     mapping.set(a.id, a.dbId);
@@ -112,4 +112,5 @@ async function saveAttributeCategoryMapping() {
   console.log(attributeIdMapping.length);
 }
 
+// saveAttributesAndValues();
 main();
