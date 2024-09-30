@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce-system-backend-deployment
+  labels:
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      name: ecommerce-system-backend
+      labels:
+        tier: backend
+    spec:
+      containers:
+        - name: ecommerce-system-backend-deployment-container
+          image: <IMAGE>
+          ports:
+            - containerPort: 8888
+          env:
+            - name: DATABASE_HOST
+              value: ep-dry-morning-a1wg43tt-pooler.ap-southeast-1.aws.neon.tech
+            - name: DATABASE_PORT
+              value: "5432"
+            - name: DATABASE_NAME
+              value: ecommerce-system-db
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 100m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecommerce-system-backend-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 8888
+  selector:
+    tier: backend
+

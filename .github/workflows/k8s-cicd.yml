@@ -1,0 +1,62 @@
+name: k8s
+on:
+  workflow_dispatch:
+
+env:
+  DOCKER_IMAGE_NAME: ecommerce-system-backend
+  DOCKERFILE_PATH: ./Dockerfile
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+
+## checks out the commit made to the project
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+# # Installs the doctl command-line client using DigitalOcean doctl Action
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Setup Environment
+        run: |
+          touch .env;
+          echo "DATABASE_URL=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
+          echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
+          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+          echo "JWT_SECRET=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
+          echo "CLOUDINARY_URL=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
+          echo "CLERK_PUBLISHABLE_KEY=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
+          echo "CLERK_SECRET_KEY=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
+
+## logins to ghcr
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          username: ngophuocloi
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+## builds and pushes the image to ghcr
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}
+          push: true
+          tags: |
+            ngophuocloi/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Update deployment file
+        run: TAG=$(echo "${{ github.sha }}") && sed -i 's|<IMAGE>|ngophuocloi/ecommerce-system-backend:'${TAG}'|' $GITHUB_WORKSPACE/k8s.yaml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 first-k8s-cloud-cluster
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/k8s.yaml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/ecommerce-system-backend-deployment
