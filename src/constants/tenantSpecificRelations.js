@@ -5,6 +5,7 @@ const PRODUCT_ATTRIBUTES = "product_attributes";
 const ATTRIBUTE_VALUES = "attribute_values";
 const PRODUCT_VARIANTS = "variants";
 const VARIANT_HAS_OPTION_WITH_VALUE = "variant_has_option_with_value";
+const ONLINE_SHOP_PAGES = "online_shop_pages";
 
 module.exports = {
   PRODUCTS,
@@ -14,4 +15,5 @@ module.exports = {
   ATTRIBUTE_VALUES,
   PRODUCT_VARIANTS,
   VARIANT_HAS_OPTION_WITH_VALUE,
+  ONLINE_SHOP_PAGES,
 };

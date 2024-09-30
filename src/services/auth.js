@@ -4,7 +4,9 @@ const argon2 = require("argon2");
 const { generateTokens } = require("../heplers/auth");
 
 const authService = {
-  register: async ({ firstName, lastName, email, password }) => {
+  register: async ({ first_name, last_name, email_addresses, id }) => {
+    const email = email_addresses[0].email_address;
+    console.log(first_name, last_name, email, id);
     const foundAccount = await prisma.accounts.findUnique({
       where: {
         email,
@@ -13,12 +15,13 @@ const authService = {
     if (foundAccount) {
       throw new BadRequest("This email has already been used!");
     }
-    const hashedPassword = await argon2.hash(password);
+    const hashedPassword = await argon2.hash(id);
 
     const result = await prisma.accounts.create({
       data: {
-        firstName,
-        lastName,
+        id,
+        firstName: first_name,
+        lastName: last_name,
         email,
         password: hashedPassword,
       },

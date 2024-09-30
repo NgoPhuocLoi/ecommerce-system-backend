@@ -1,21 +1,24 @@
 const { CreatedResponse, OKResponse } = require("../responses/success");
 const shopService = require("../services/shop");
+const { getAuth } = require("@clerk/express");
 
 const shopController = {
   create: async (req, res) => {
-    console.log(req.body)
+    const auth = getAuth(req);
     new CreatedResponse({
       metadata: await shopService.create({
-        accountId: req.account.accountId,
+        accountId: auth.userId,
         name: req.body.name,
       }),
     }).send(res);
   },
 
   getByAccountId: async (req, res) => {
+    const auth = getAuth(req);
+    console.log(auth);
     new OKResponse({
       metadata: await shopService.getByAccountId({
-        accountId: req.account.accountId,
+        accountId: auth.userId,
       }),
     }).send(res);
   },

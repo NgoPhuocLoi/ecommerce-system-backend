@@ -3,6 +3,7 @@ const { asyncHandler } = require("../middlewares/asyncHandler");
 const jwt = require("jsonwebtoken");
 const prisma = require("../config/prismaClient");
 const { getShopIdFromRequest } = require("../utils");
+const { getAuth } = require("@clerk/express");
 
 const permission = (permittedRoles) => (req, _, next) => {
   const accountRole = req.account.role;
@@ -27,7 +28,10 @@ const authentication = (req, _, next) => {
 
 const requiredValidShopIdHeader = async (req, _, next) => {
   const shopId = getShopIdFromRequest(req);
-  const accountId = req.account.accountId;
+  const auth = getAuth(req);
+
+  console.log(auth);
+  console.log({ shopId });
 
   if (!shopId) {
     next(new BadRequest("Shop ID is missing"));
@@ -35,7 +39,7 @@ const requiredValidShopIdHeader = async (req, _, next) => {
 
   try {
     const foundShop = await prisma.shops.findUnique({
-      where: { id: shopId, accountId: accountId },
+      where: { id: shopId, accountId: auth.userId },
     });
 
     if (!foundShop) {

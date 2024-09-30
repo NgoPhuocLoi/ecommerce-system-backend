@@ -3,19 +3,25 @@ const db = require("../helpers/db");
 
 const shopService = {
   create: async ({ accountId, name }) => {
-    const result = await prisma.$transaction(async (tx) => {
-      const newShop = await tx.shops.create({
-        data: {
-          name,
-          accountId: accountId,
-          updatedAt: new Date(),
-        },
-      });
+    const result = await prisma.$transaction(
+      async (tx) => {
+        const newShop = await tx.shops.create({
+          data: {
+            name,
+            accountId: accountId,
+            updatedAt: new Date(),
+          },
+        });
 
-      await db.createTenantSchema(tx, newShop.id);
+        await db.createTenantSchema(tx, newShop.id);
 
-      return newShop;
-    });
+        return newShop;
+      },
+      {
+        maxWait: 5000,
+        timeout: 20000,
+      }
+    );
 
     return result;
   },

@@ -152,11 +152,20 @@ const productService = {
   },
 
   findByShopId: async (shopId, filter) => {
-    const result = await db.find(getTenantSpecificRelation(shopId, PRODUCTS));
+    let products = [];
+    console.log("======EXECUTED");
+
+    if (Object.keys(filter).length > 0 && filter.name) {
+      products = await sql`SELECT * FROM ${sql(
+        getTenantSpecificRelation(shopId, PRODUCTS)
+      )} WHERE name ILIKE ${"%" + filter.name + "%"};`;
+    } else {
+      products = await db.find(getTenantSpecificRelation(shopId, PRODUCTS));
+    }
     // TODO: use Redis to cache the category
     const categoryMapping = new Map();
-    for (let i = 0; i < result.length; i++) {
-      const product = result[i];
+    for (let i = 0; i < products.length; i++) {
+      const product = products[i];
       const categoryQuery = db.findById(CATEGORIES, product.category_id);
       let category;
       if (categoryMapping.has(product.category_id)) {
@@ -175,7 +184,7 @@ const productService = {
 
       product.images = productImages;
     }
-    return result;
+    return products;
   },
 
   findById: async (shopId, productId) => {

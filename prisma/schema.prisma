@@ -259,6 +259,7 @@ model OnlineShopPages {
   id     Int    @id @default(autoincrement())
   name   String
   layout String
+  link   String
 
   @@map("online_shop_pages")
   @@schema("tenantSpecific")

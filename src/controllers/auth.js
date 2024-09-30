@@ -3,15 +3,11 @@ const { CreatedResponse, OKResponse } = require("../responses/success");
 
 const authController = {
   register: async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+    // const { firstName, lastName, email, password } = req.body;
+    console.log(req.body);
     new CreatedResponse({
       message: "Account created",
-      metadata: await authService.register({
-        firstName,
-        lastName,
-        email,
-        password,
-      }),
+      metadata: await authService.register(req.body.data),
     }).send(res);
   },
   login: async (req, res) => {
@@ -26,7 +22,7 @@ const authController = {
       message: "Token is valid",
       metadata: req.account,
     }).send(res);
-  }
+  },
 };
 
 module.exports = authController;

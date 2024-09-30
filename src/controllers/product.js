@@ -15,8 +15,13 @@ const productController = {
     }).send(res);
   },
   getAll: async (req, res) => {
+    const query = req.query;
+    console.log({ query });
     new OKResponse({
-      metadata: await productService.findByShopId(getShopIdFromRequest(req)),
+      metadata: await productService.findByShopId(
+        getShopIdFromRequest(req),
+        req.query
+      ),
     }).send(res);
   },
   getById: async (req, res) => {
