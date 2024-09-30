@@ -24,13 +24,13 @@ jobs:
       - name: Setup Environment
         run: |
           touch .env;
-          echo "DATABASE_URL=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
           echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
           echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-          echo "JWT_SECRET=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
-          echo "CLOUDINARY_URL=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
-          echo "CLERK_PUBLISHABLE_KEY=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
-          echo "CLERK_SECRET_KEY=${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "CLOUDINARY_URL=${{ secrets.CLOUDINARY_URL }}" >> .env
+          echo "CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }}" >> .env
+          echo "CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}" >> .env
 
 ## logins to ghcr
       - name: Login to Github Container Registry

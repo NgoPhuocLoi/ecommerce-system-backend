@@ -11,13 +11,9 @@ const router = require("express").Router();
 router.get("/", (req, res) => {
   new OKResponse({
     metadata: {
-      version: "1.0.0",
+      version: "1.0.1",
     },
   }).send(res);
-});
-
-router.get("/test", requireAuth, (req, res) => {
-  res.json(req.auth);
 });
 
 module.exports = router;
