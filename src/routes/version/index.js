@@ -1,10 +1,4 @@
 const { OKResponse } = require("../../responses/success");
-const { UnAuthorized } = require("../../responses/error");
-const {
-  ClerkExpressWithAuth,
-  ClerkExpressRequireAuth,
-} = require("@clerk/clerk-sdk-node");
-const { requireAuth } = require("@clerk/express");
 
 const router = require("express").Router();
 

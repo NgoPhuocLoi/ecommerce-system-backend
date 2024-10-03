@@ -21,7 +21,6 @@ const find = async (relation, custom, ...args) => {
     relation
   )} WHERE ${custom};`;
   const prepare = custom ? findWithCondition : findAll;
-  console.log({ prepare });
   const result = await prepare;
   return result;
 };
@@ -52,6 +51,11 @@ const deleteById = async (relation, id, updatedData) => {
 
 const findById = async (relation, id) => {
   const result = await sql`SELECT * FROM ${sql(relation)} WHERE id = ${id} ;`;
+  return result[0];
+};
+
+const findByIdIfExist = async (relation, id) => {
+  const result = await sql`SELECT id FROM ${sql(relation)} WHERE id = ${id} ;`;
   return result[0];
 };
 
@@ -87,4 +91,5 @@ module.exports = {
   deleteById,
   joinFind,
   createInTransaction,
+  findByIdIfExist,
 };

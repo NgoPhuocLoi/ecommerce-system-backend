@@ -30,9 +30,6 @@ const requiredValidShopIdHeader = async (req, _, next) => {
   const shopId = getShopIdFromRequest(req);
   const auth = getAuth(req);
 
-  console.log(auth);
-  console.log({ shopId });
-
   if (!shopId) {
     next(new BadRequest("Shop ID is missing"));
   }

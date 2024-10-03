@@ -7,6 +7,12 @@ const { validPage } = require("../../middlewares/validation/online-shop");
 const router = require("express").Router();
 
 router.get("/pages", asyncHandler(onlineShopController.getPages));
+router.get(
+  "/pages/:pageId/layout",
+  param("pageId").custom(validPage),
+  validate,
+  asyncHandler(onlineShopController.getPageLayout)
+);
 router.post(
   "/pages",
   body("name").notEmpty().withMessage("Page's name is missing"),

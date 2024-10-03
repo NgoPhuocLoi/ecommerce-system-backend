@@ -10,6 +10,14 @@ const onlineShopController = {
     }).send(res);
   },
 
+  getPageLayout: async (req, res) => {
+    const shopId = getShopIdFromRequest(req);
+    const pageId = req.params.pageId;
+    new OKResponse({
+      metadata: await onlineShopService.getPageLayout(shopId, pageId),
+    }).send(res);
+  },
+
   createPage: async (req, res) => {
     const shopId = getShopIdFromRequest(req);
     new CreatedResponse({

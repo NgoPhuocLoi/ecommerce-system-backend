@@ -4,7 +4,6 @@ const { CreatedResponse, OKResponse } = require("../responses/success");
 const authController = {
   register: async (req, res) => {
     // const { firstName, lastName, email, password } = req.body;
-    console.log(req.body);
     new CreatedResponse({
       message: "Account created",
       metadata: await authService.register(req.body.data),

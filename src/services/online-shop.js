@@ -12,6 +12,14 @@ const onlineShopService = {
     return pages;
   },
 
+  getPageLayout: async (shopId, pageId) => {
+    const page = await sql`SELECT layout FROM ${sql(
+      getTenantSpecificRelation(shopId, ONLINE_SHOP_PAGES)
+    )} WHERE id = ${pageId};`;
+
+    return page[0];
+  },
+
   createPage: async (shopId, { name, layout = "" }) => {
     const page = {
       name,
@@ -36,8 +44,8 @@ const onlineShopService = {
     return result;
   },
 
-  findById: async (shopId, pageId) => {
-    const page = await db.findById(
+  findByIdIfExist: async (shopId, pageId) => {
+    const page = await db.findByIdIfExist(
       getTenantSpecificRelation(shopId, ONLINE_SHOP_PAGES),
       pageId
     );
