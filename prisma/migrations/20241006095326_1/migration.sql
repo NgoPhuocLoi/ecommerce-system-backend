@@ -95,6 +95,29 @@ CREATE TABLE "public"."recommend_attribute_of_category" (
 );
 
 -- CreateTable
+CREATE TABLE "public"."themes" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "recommended_for_category_id" INTEGER,
+
+    CONSTRAINT "themes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."pages_in_theme" (
+    "id" SERIAL NOT NULL,
+    "theme_id" INTEGER NOT NULL,
+    "position" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "layout" TEXT NOT NULL,
+    "link" TEXT NOT NULL,
+    "show_in_navigation" BOOLEAN NOT NULL,
+
+    CONSTRAINT "pages_in_theme_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "tenantSpecific"."products" (
     "id" SERIAL NOT NULL,
     "category_id" INTEGER NOT NULL,
@@ -187,16 +210,36 @@ CREATE TABLE "tenantSpecific"."custom_product_types" (
 );
 
 -- CreateTable
+CREATE TABLE "tenantSpecific"."shop_profiles" (
+    "id" SERIAL NOT NULL,
+    "shop_id" TEXT NOT NULL,
+    "has_used_platform_before" BOOLEAN NOT NULL,
+    "main_category_id_to_sell" INTEGER,
+    "has_confirmed_email" BOOLEAN NOT NULL,
+    "theme_id" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "shop_profiles_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "tenantSpecific"."online_shop_pages" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "layout" TEXT NOT NULL,
+    "link" TEXT NOT NULL,
+    "show_in_navigation" BOOLEAN NOT NULL,
+    "created_by_default" BOOLEAN NOT NULL,
 
     CONSTRAINT "online_shop_pages_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "accounts_email_key" ON "public"."accounts"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "shop_profiles_shop_id_key" ON "tenantSpecific"."shop_profiles"("shop_id");
 
 -- AddForeignKey
 ALTER TABLE "public"."categories" ADD CONSTRAINT "categories_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -212,6 +255,12 @@ ALTER TABLE "public"."recommend_attribute_of_category" ADD CONSTRAINT "recommend
 
 -- AddForeignKey
 ALTER TABLE "public"."recommend_attribute_of_category" ADD CONSTRAINT "recommend_attribute_of_category_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."themes" ADD CONSTRAINT "themes_recommended_for_category_id_fkey" FOREIGN KEY ("recommended_for_category_id") REFERENCES "public"."categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."pages_in_theme" ADD CONSTRAINT "pages_in_theme_theme_id_fkey" FOREIGN KEY ("theme_id") REFERENCES "public"."themes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tenantSpecific"."products" ADD CONSTRAINT "products_custom_product_type_id_fkey" FOREIGN KEY ("custom_product_type_id") REFERENCES "tenantSpecific"."custom_product_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -248,3 +297,12 @@ ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "var
 
 -- AddForeignKey
 ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "variant_has_option_with_value_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "tenantSpecific"."variants"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."shop_profiles" ADD CONSTRAINT "shop_profiles_shop_id_fkey" FOREIGN KEY ("shop_id") REFERENCES "public"."shops"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."shop_profiles" ADD CONSTRAINT "shop_profiles_main_category_id_to_sell_fkey" FOREIGN KEY ("main_category_id_to_sell") REFERENCES "public"."categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."shop_profiles" ADD CONSTRAINT "shop_profiles_theme_id_fkey" FOREIGN KEY ("theme_id") REFERENCES "public"."themes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

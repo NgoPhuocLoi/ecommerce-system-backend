@@ -37,9 +37,11 @@ model Categories {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  parent              Categories?                    @relation("chilren", fields: [parentId], references: [id])
-  children            Categories[]                   @relation("chilren")
-  recommendAttributes RecommendAttributeOfCategory[]
+  parent                Categories?                    @relation("chilren", fields: [parentId], references: [id])
+  children              Categories[]                   @relation("chilren")
+  recommendAttributes   RecommendAttributeOfCategory[]
+  themes                Themes[]
+  shopOnboardingProfile ShopProfiles[]
 
   @@map("categories")
   @@schema("public")
@@ -53,6 +55,8 @@ model Shops {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  onboardingProfile ShopProfiles?
 
   @@map("shops")
   @@schema("public")
@@ -124,6 +128,35 @@ model RecommendAttributeOfCategory {
   category           Categories          @relation(fields: [categoryId], references: [id])
 
   @@map("recommend_attribute_of_category")
+  @@schema("public")
+}
+
+model Themes {
+  id                       Int         @id @default(autoincrement())
+  name                     String
+  description              String?
+  recommendedForCategoryId Int?        @map("recommended_for_category_id")
+  recommendedForCategory   Categories? @relation(fields: [recommendedForCategoryId], references: [id])
+
+  defaultPages DefaultOnlineShopPages[]
+  shopProfiles ShopProfiles[]
+
+  @@map("themes")
+  @@schema("public")
+}
+
+model DefaultOnlineShopPages {
+  id               Int     @id @default(autoincrement())
+  themeId          Int     @map("theme_id")
+  position         Int
+  name             String
+  layout           String
+  link             String
+  showInNavigation Boolean @map("show_in_navigation")
+
+  theme Themes @relation(fields: [themeId], references: [id])
+
+  @@map("pages_in_theme")
   @@schema("public")
 }
 
@@ -255,11 +288,32 @@ model CustomProductType {
   @@schema("tenantSpecific")
 }
 
+model ShopProfiles {
+  id                    Int     @id @default(autoincrement())
+  shopId                String  @unique @map("shop_id")
+  hasUsedPlatformBefore Boolean @map("has_used_platform_before")
+  mainCategoryIdToSell  Int?    @map("main_category_id_to_sell")
+  hasConfirmedEmail     Boolean @map("has_confirmed_email")
+  themeId               Int     @map("theme_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  shop               Shops       @relation(fields: [shopId], references: [id])
+  mainCategoryToSell Categories? @relation(fields: [mainCategoryIdToSell], references: [id])
+  theme              Themes      @relation(fields: [themeId], references: [id])
+
+  @@map("shop_profiles")
+  @@schema("tenantSpecific")
+}
+
 model OnlineShopPages {
-  id     Int    @id @default(autoincrement())
-  name   String
-  layout String
-  link   String
+  id               Int     @id @default(autoincrement())
+  name             String
+  layout           String
+  link             String
+  showInNavigation Boolean @map("show_in_navigation")
+  createdByDefault Boolean @map("created_by_default")
 
   @@map("online_shop_pages")
   @@schema("tenantSpecific")
