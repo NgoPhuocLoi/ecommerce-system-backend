@@ -1,5 +1,6 @@
 /node_modules
 .env
 /data/**.json
+/data/**.csv
 ssl-cert
 k8s-local.yaml

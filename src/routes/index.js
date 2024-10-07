@@ -11,6 +11,7 @@ router.use("/auth", require("./auth"));
 router.use("/categories", require("./category"));
 
 router.use(requireAuth);
+router.use("/themes", require("./theme"));
 router.use("/shops", require("./shop"));
 router.use(requiredValidShopIdHeader);
 router.use("/products", require("./product"));
