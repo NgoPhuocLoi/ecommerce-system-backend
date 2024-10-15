@@ -28,6 +28,16 @@ const themeController = {
     }).send(res);
   },
 
+  updatePagesPositionInTheme: async (req, res) => {
+    const themeId = Number(req.params.id);
+    new OKResponse({
+      metadata: await themeService.updatePagesPositionInTheme(
+        themeId,
+        req.body.pageIdsInOrder
+      ),
+    }).send(res);
+  },
+
   deleteTheme: async (req, res) => {
     const themeId = Number(req.params.id);
     new OKResponse({

@@ -11,6 +11,17 @@ const validTheme = async (themeId) => {
   }
 };
 
+const uniqueLink = async (link, { req }) => {
+  const themeId = Number(req.params.id);
+  const foundLink = await prisma.defaultOnlineShopPages.findFirst({
+    where: { link, themeId },
+  });
+  if (foundLink) {
+    throw new BadRequest(`Page with link ${link} already exists`);
+  }
+};
+
 module.exports = {
   validTheme,
+  uniqueLink,
 };

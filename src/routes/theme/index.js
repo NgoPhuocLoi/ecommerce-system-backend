@@ -2,7 +2,10 @@ const { body, param } = require("express-validator");
 const themeController = require("../../controllers/theme");
 const { asyncHandler } = require("../../middlewares/asyncHandler");
 const { validate } = require("../../middlewares/validation");
-const { validTheme } = require("../../middlewares/validation/theme");
+const {
+  validTheme,
+  uniqueLink,
+} = require("../../middlewares/validation/theme");
 
 const router = require("express").Router();
 
@@ -27,6 +30,14 @@ router.put(
   validate,
   asyncHandler(themeController.updateTheme)
 );
+
+router.put(
+  "/:id/update-pages-position",
+  param("id").custom(validTheme),
+  validate,
+  asyncHandler(themeController.updatePagesPositionInTheme)
+);
+
 router.delete(
   "/:id",
   param("id").isNumeric().custom(validTheme).withMessage("Invalid theme ID"),
@@ -38,7 +49,7 @@ router.post(
   "/:id/pages",
   param("id").custom(validTheme),
   body("name").notEmpty().withMessage("Name is missing"),
-  body("link").notEmpty().withMessage("Link is missing"),
+  body("link").notEmpty().withMessage("Link is missing").custom(uniqueLink),
   validate,
   asyncHandler(themeController.createPageInTheme)
 );

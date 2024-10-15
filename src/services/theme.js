@@ -30,6 +30,9 @@ const themeService = {
             link: true,
             position: true,
           },
+          orderBy: {
+            position: "asc",
+          },
         },
       },
     });
@@ -78,21 +81,48 @@ const themeService = {
     return newPage;
   },
 
+  updatePagesPositionInTheme: async (themeId, pageIdsInOrder) => {
+    const updatedPages = await prismaClient.$transaction(async (tx) => {
+      const result = await Promise.all(
+        pageIdsInOrder.map((pageId, index) => {
+          return tx.defaultOnlineShopPages.update({
+            where: {
+              id: pageId,
+              themeId,
+            },
+            data: {
+              position: index,
+            },
+          });
+        })
+      );
+
+      return result;
+    });
+    return updatedPages;
+  },
+
   getPagesInTheme: async (themeId) => {
     const pages = await prismaClient.defaultOnlineShopPages.findMany({
       where: {
         themeId,
       },
       orderBy: {
-        position: "asc",
+        position: "desc",
+      },
+      select: {
+        id: true,
+        name: true,
+        showInNavigation: true,
+        link: true,
+        position: true,
       },
     });
     return pages;
   },
 
   getPageInTheme: async (themeId, pageId) => {
-    return "OK";
-    const page = await prismaClient.pages.findUnique({
+    const page = await prismaClient.defaultOnlineShopPages.findUnique({
       where: {
         id: pageId,
         themeId,
@@ -102,8 +132,7 @@ const themeService = {
   },
 
   updatePageInTheme: async (themeId, pageId, updatedData) => {
-    return "OK";
-    const updatedPage = await prismaClient.pages.update({
+    const updatedPage = await prismaClient.defaultOnlineShopPages.update({
       where: {
         id: pageId,
         themeId,
@@ -114,8 +143,7 @@ const themeService = {
   },
 
   deletePageInTheme: async (themeId, pageId) => {
-    return "OK";
-    const deletedPage = await prismaClient.pages.delete({
+    const deletedPage = await prismaClient.defaultOnlineShopPages.delete({
       where: {
         id: pageId,
         themeId,
