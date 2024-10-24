@@ -135,7 +135,8 @@ model Themes {
   id                       Int         @id @default(autoincrement())
   name                     String
   description              String?
-  defaultLayout            String      @default("") @map("default_layout")
+  defaultHeaderLayout      String      @default("") @map("default_header_layout")
+  defaultFooterLayout      String      @default("") @map("default_footer_layout")
   recommendedForCategoryId Int?        @map("recommended_for_category_id")
   recommendedForCategory   Categories? @relation(fields: [recommendedForCategoryId], references: [id])
 
