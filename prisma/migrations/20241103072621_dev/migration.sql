@@ -29,7 +29,12 @@ CREATE TABLE "public"."categories" (
 CREATE TABLE "public"."shops" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "domain" TEXT NOT NULL,
     "account_id" TEXT NOT NULL,
+    "has_used_platform_before" BOOLEAN NOT NULL,
+    "main_category_id_to_sell" INTEGER,
+    "has_confirmed_email" BOOLEAN NOT NULL,
+    "theme_id" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -99,6 +104,8 @@ CREATE TABLE "public"."themes" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
+    "default_header_layout" TEXT NOT NULL DEFAULT '',
+    "default_footer_layout" TEXT NOT NULL DEFAULT '',
     "recommended_for_category_id" INTEGER,
 
     CONSTRAINT "themes_pkey" PRIMARY KEY ("id")
@@ -210,17 +217,15 @@ CREATE TABLE "tenantSpecific"."custom_product_types" (
 );
 
 -- CreateTable
-CREATE TABLE "tenantSpecific"."shop_profiles" (
+CREATE TABLE "tenantSpecific"."online_shops" (
     "id" SERIAL NOT NULL,
-    "shop_id" TEXT NOT NULL,
-    "has_used_platform_before" BOOLEAN NOT NULL,
-    "main_category_id_to_sell" INTEGER,
-    "has_confirmed_email" BOOLEAN NOT NULL,
     "theme_id" INTEGER NOT NULL,
+    "default_header_layout" TEXT NOT NULL,
+    "default_footer_layout" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "shop_profiles_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "online_shops_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -235,17 +240,134 @@ CREATE TABLE "tenantSpecific"."online_shop_pages" (
     CONSTRAINT "online_shop_pages_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "tenantSpecific"."delivery_addresses" (
+    "delivery_address_id" SERIAL NOT NULL,
+    "province_name" TEXT NOT NULL,
+    "province_id" INTEGER NOT NULL,
+    "district_name" TEXT NOT NULL,
+    "district_id" INTEGER NOT NULL,
+    "ward_name" TEXT NOT NULL,
+    "ward_code" TEXT NOT NULL,
+    "phone" TEXT NOT NULL,
+    "detail_address" TEXT NOT NULL,
+    "is_default" BOOLEAN NOT NULL,
+    "is_deleted" BOOLEAN NOT NULL,
+    "customer_id" INTEGER NOT NULL,
+
+    CONSTRAINT "delivery_addresses_pkey" PRIMARY KEY ("delivery_address_id")
+);
+
+-- CreateTable
+CREATE TABLE "tenantSpecific"."customers" (
+    "id" SERIAL NOT NULL,
+    "first_name" TEXT NOT NULL,
+    "last_name" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "customers_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "tenantSpecific"."payments" (
+    "payment_id" SERIAL NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "paymentStatusId" INTEGER NOT NULL,
+    "payment_method_id" INTEGER NOT NULL,
+    "order_id" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "payments_pkey" PRIMARY KEY ("payment_id")
+);
+
+-- CreateTable
+CREATE TABLE "tenantSpecific"."orders" (
+    "order_id" SERIAL NOT NULL,
+    "total_price" DOUBLE PRECISION NOT NULL,
+    "total_discount" DOUBLE PRECISION NOT NULL,
+    "final_price" DOUBLE PRECISION NOT NULL,
+    "shipping_fee" DOUBLE PRECISION NOT NULL,
+    "buyer_id" INTEGER NOT NULL,
+    "delivery_address_id" INTEGER NOT NULL,
+    "current_status_id" INTEGER NOT NULL,
+    "used_coupon_id" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "orders_pkey" PRIMARY KEY ("order_id")
+);
+
+-- CreateTable
+CREATE TABLE "tenantSpecific"."order_details" (
+    "order_id" INTEGER NOT NULL,
+    "variant_id" INTEGER NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "discount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+
+    CONSTRAINT "order_details_pkey" PRIMARY KEY ("order_id","variant_id")
+);
+
+-- CreateTable
+CREATE TABLE "tenantSpecific"."coupons" (
+    "coupon_id" SERIAL NOT NULL,
+    "code" TEXT NOT NULL,
+    "discountType" TEXT NOT NULL,
+    "discountValue" DOUBLE PRECISION NOT NULL,
+    "start_date" TIMESTAMP(3) NOT NULL,
+    "end_date" TIMESTAMP(3) NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "visible" BOOLEAN NOT NULL DEFAULT true,
+    "collected_quantity" INTEGER NOT NULL DEFAULT 0,
+    "current_use" INTEGER NOT NULL DEFAULT 0,
+    "minumin_price_to_use" DOUBLE PRECISION NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "coupons_pkey" PRIMARY KEY ("coupon_id")
+);
+
+-- CreateTable
+CREATE TABLE "tenantSpecific"."collected_coupons" (
+    "customer_id" INTEGER NOT NULL,
+    "coupon_id" INTEGER NOT NULL,
+    "used" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "collected_coupons_pkey" PRIMARY KEY ("customer_id","coupon_id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "accounts_email_key" ON "public"."accounts"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "shop_profiles_shop_id_key" ON "tenantSpecific"."shop_profiles"("shop_id");
+CREATE UNIQUE INDEX "shops_domain_key" ON "public"."shops"("domain");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "customers_email_key" ON "tenantSpecific"."customers"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "payments_order_id_key" ON "tenantSpecific"."payments"("order_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "coupons_code_key" ON "tenantSpecific"."coupons"("code");
 
 -- AddForeignKey
 ALTER TABLE "public"."categories" ADD CONSTRAINT "categories_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."shops" ADD CONSTRAINT "shops_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "public"."accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."shops" ADD CONSTRAINT "shops_main_category_id_to_sell_fkey" FOREIGN KEY ("main_category_id_to_sell") REFERENCES "public"."categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."shops" ADD CONSTRAINT "shops_theme_id_fkey" FOREIGN KEY ("theme_id") REFERENCES "public"."themes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."recommend_attribute_values" ADD CONSTRAINT "recommend_attribute_values_recommend_attribute_id_fkey" FOREIGN KEY ("recommend_attribute_id") REFERENCES "public"."recommend_attributes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -299,10 +421,40 @@ ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "var
 ALTER TABLE "tenantSpecific"."variant_has_option_with_value" ADD CONSTRAINT "variant_has_option_with_value_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "tenantSpecific"."variants"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenantSpecific"."shop_profiles" ADD CONSTRAINT "shop_profiles_shop_id_fkey" FOREIGN KEY ("shop_id") REFERENCES "public"."shops"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tenantSpecific"."online_shops" ADD CONSTRAINT "online_shops_theme_id_fkey" FOREIGN KEY ("theme_id") REFERENCES "public"."themes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenantSpecific"."shop_profiles" ADD CONSTRAINT "shop_profiles_main_category_id_to_sell_fkey" FOREIGN KEY ("main_category_id_to_sell") REFERENCES "public"."categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "tenantSpecific"."delivery_addresses" ADD CONSTRAINT "delivery_addresses_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "tenantSpecific"."customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenantSpecific"."shop_profiles" ADD CONSTRAINT "shop_profiles_theme_id_fkey" FOREIGN KEY ("theme_id") REFERENCES "public"."themes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tenantSpecific"."payments" ADD CONSTRAINT "payments_payment_method_id_fkey" FOREIGN KEY ("payment_method_id") REFERENCES "public"."payment_methods"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."payments" ADD CONSTRAINT "payments_paymentStatusId_fkey" FOREIGN KEY ("paymentStatusId") REFERENCES "public"."payment_status"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."payments" ADD CONSTRAINT "payments_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "tenantSpecific"."orders"("order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."orders" ADD CONSTRAINT "orders_buyer_id_fkey" FOREIGN KEY ("buyer_id") REFERENCES "tenantSpecific"."customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."orders" ADD CONSTRAINT "orders_current_status_id_fkey" FOREIGN KEY ("current_status_id") REFERENCES "public"."order_status"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."orders" ADD CONSTRAINT "orders_delivery_address_id_fkey" FOREIGN KEY ("delivery_address_id") REFERENCES "tenantSpecific"."delivery_addresses"("delivery_address_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."orders" ADD CONSTRAINT "orders_used_coupon_id_fkey" FOREIGN KEY ("used_coupon_id") REFERENCES "tenantSpecific"."coupons"("coupon_id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."order_details" ADD CONSTRAINT "order_details_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "tenantSpecific"."orders"("order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."order_details" ADD CONSTRAINT "order_details_variant_id_fkey" FOREIGN KEY ("variant_id") REFERENCES "tenantSpecific"."variants"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."collected_coupons" ADD CONSTRAINT "collected_coupons_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "tenantSpecific"."customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "tenantSpecific"."collected_coupons" ADD CONSTRAINT "collected_coupons_coupon_id_fkey" FOREIGN KEY ("coupon_id") REFERENCES "tenantSpecific"."coupons"("coupon_id") ON DELETE RESTRICT ON UPDATE CASCADE;

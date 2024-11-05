@@ -1,15 +1,28 @@
 const sql = require("../config/db");
-const { ONLINE_SHOP_PAGES } = require("../constants/tenantSpecificRelations");
+const {
+  ONLINE_SHOP_PAGES,
+  ONLINE_SHOPS,
+} = require("../constants/tenantSpecificRelations");
 const db = require("../helpers/db");
-const { getTenantSpecificRelation } = require("../utils");
+const {
+  getTenantSpecificRelation,
+  convertToObjectWithCamelCase,
+} = require("../utils");
 
 const onlineShopService = {
   getPages: async (shopId) => {
-    const pages = await sql`SELECT id, name FROM ${sql(
-      getTenantSpecificRelation(shopId, ONLINE_SHOP_PAGES)
-    )};`;
+    const pages =
+      await sql`SELECT id, name, show_in_navigation, position, created_by_default, link FROM ${sql(
+        getTenantSpecificRelation(shopId, ONLINE_SHOP_PAGES)
+      )};`;
 
-    return pages;
+    return pages.map(convertToObjectWithCamelCase);
+  },
+
+  getOnlineShop: async (shopId) => {
+    const shop = await db.find(getTenantSpecificRelation(shopId, ONLINE_SHOPS));
+
+    return shop.map(convertToObjectWithCamelCase);
   },
 
   getPageLayout: async (shopId, pageId) => {

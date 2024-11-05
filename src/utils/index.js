@@ -9,10 +9,25 @@ const convertFromCamelToSnakeCase = (camelString) => {
   return camelString.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
 };
 
+const convertFromSnakeToCamelCase = (snakeString) => {
+  return snakeString.replace(/([-_][a-z])/g, (group) =>
+    group.toUpperCase().replace("-", "").replace("_", "")
+  );
+};
+
 const convertToObjectWithSnakeCase = (input) => {
   const result = {};
   for (let key of Object.keys(input)) {
     result[convertFromCamelToSnakeCase(key)] = input[key];
+  }
+
+  return result;
+};
+
+const convertToObjectWithCamelCase = (input) => {
+  const result = {};
+  for (let key of Object.keys(input)) {
+    result[convertFromSnakeToCamelCase(key)] = input[key];
   }
 
   return result;
@@ -24,4 +39,6 @@ module.exports = {
   getShopIdFromRequest,
   convertToObjectWithSnakeCase,
   convertFromCamelToSnakeCase,
+  convertFromSnakeToCamelCase,
+  convertToObjectWithCamelCase,
 };

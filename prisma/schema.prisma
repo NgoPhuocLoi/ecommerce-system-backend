@@ -37,26 +37,40 @@ model Categories {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  parent                Categories?                    @relation("chilren", fields: [parentId], references: [id])
-  children              Categories[]                   @relation("chilren")
-  recommendAttributes   RecommendAttributeOfCategory[]
-  themes                Themes[]
-  shopOnboardingProfile ShopProfiles[]
+  parent              Categories?                    @relation("chilren", fields: [parentId], references: [id])
+  children            Categories[]                   @relation("chilren")
+  recommendAttributes RecommendAttributeOfCategory[]
+  themes              Themes[]
+  shopsMainlySell     Shops[]
 
   @@map("categories")
   @@schema("public")
 }
 
 model Shops {
-  id        String   @id @default(uuid())
-  name      String
-  accountId String   @map("account_id")
-  account   Accounts @relation(fields: [accountId], references: [id])
+  id                    String  @id @default(uuid())
+  name                  String
+  domain                String  @unique
+  accountId             String  @map("account_id")
+  hasUsedPlatformBefore Boolean @map("has_used_platform_before")
+  mainCategoryIdToSell  Int?    @map("main_category_id_to_sell")
+  hasConfirmedEmail     Boolean @map("has_confirmed_email")
+  themeId               Int     @map("theme_id")
+  provinceName          String  @map("province_name")
+  provinceId            Int     @map("province_id")
+  districtName          String  @map("district_name")
+  districtId            Int     @map("district_id")
+  wardName              String  @map("ward_name")
+  wardCode              String  @map("ward_code")
+  phone                 String  @map("phone")
+  detailAddress         String  @map("detail_address")
+
+  account            Accounts    @relation(fields: [accountId], references: [id])
+  mainCategoryToSell Categories? @relation(fields: [mainCategoryIdToSell], references: [id])
+  theme              Themes      @relation(fields: [themeId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  onboardingProfile ShopProfiles?
 
   @@map("shops")
   @@schema("public")
@@ -66,21 +80,25 @@ model PaymentMethods {
   id   Int    @id @default(autoincrement())
   name String
 
+  payments Payment[]
+
   @@map("payment_methods")
   @@schema("public")
 }
 
 model OrderStatus {
-  id   Int    @id @default(autoincrement())
-  name String
+  id    Int     @id @default(autoincrement())
+  name  String
+  Order Order[]
 
   @@map("order_status")
   @@schema("public")
 }
 
 model PaymentStatus {
-  id   Int    @id @default(autoincrement())
-  name String
+  id       Int       @id @default(autoincrement())
+  name     String
+  payments Payment[]
 
   @@map("payment_status")
   @@schema("public")
@@ -140,8 +158,9 @@ model Themes {
   recommendedForCategoryId Int?        @map("recommended_for_category_id")
   recommendedForCategory   Categories? @relation(fields: [recommendedForCategoryId], references: [id])
 
-  defaultPages DefaultOnlineShopPages[]
-  shopProfiles ShopProfiles[]
+  defaultPages            DefaultOnlineShopPages[]
+  usedByShops             Shops[]
+  customizedInOnlineShops OnlineShops[]
 
   @@map("themes")
   @@schema("public")
@@ -230,6 +249,7 @@ model Variants {
   thumbnail UploadedImages? @relation(fields: [uploaded_thumbnail_id], references: [id])
 
   attributeWithValue VariantHasAttributeWithValue[]
+  OrderDetail        OrderDetail[]
 
   @@map("variants")
   @@schema("tenantSpecific")
@@ -290,22 +310,18 @@ model CustomProductType {
   @@schema("tenantSpecific")
 }
 
-model ShopProfiles {
-  id                    Int     @id @default(autoincrement())
-  shopId                String  @unique @map("shop_id")
-  hasUsedPlatformBefore Boolean @map("has_used_platform_before")
-  mainCategoryIdToSell  Int?    @map("main_category_id_to_sell")
-  hasConfirmedEmail     Boolean @map("has_confirmed_email")
-  themeId               Int     @map("theme_id")
+model OnlineShops {
+  id                  Int    @id @default(autoincrement())
+  themeId             Int    @map("theme_id")
+  defaultHeaderLayout String @map("default_header_layout")
+  defaultFooterLayout String @map("default_footer_layout")
+
+  theme Themes @relation(fields: [themeId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  shop               Shops       @relation(fields: [shopId], references: [id])
-  mainCategoryToSell Categories? @relation(fields: [mainCategoryIdToSell], references: [id])
-  theme              Themes      @relation(fields: [themeId], references: [id])
-
-  @@map("shop_profiles")
+  @@map("online_shops")
   @@schema("tenantSpecific")
 }
 
@@ -318,5 +334,141 @@ model OnlineShopPages {
   createdByDefault Boolean @map("created_by_default")
 
   @@map("online_shop_pages")
+  @@schema("tenantSpecific")
+}
+
+model DeliveryAddresses {
+  id            Int     @id @default(autoincrement()) @map("delivery_address_id")
+  provinceName  String  @map("province_name")
+  provinceId    Int     @map("province_id")
+  districtName  String  @map("district_name")
+  districtId    Int     @map("district_id")
+  wardName      String  @map("ward_name")
+  wardCode      String  @map("ward_code")
+  phone         String  @map("phone")
+  detailAddress String  @map("detail_address")
+  isDefault     Boolean @map("is_default")
+  isDeleted     Boolean @map("is_deleted")
+  customerId    Int     @map("customer_id")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  Order    Order[]
+
+  @@map("delivery_addresses")
+  @@schema("tenantSpecific")
+}
+
+model Customer {
+  id        Int    @id @default(autoincrement())
+  firstName String @map("first_name")
+  lastName  String @map("last_name")
+  email     String @unique
+  password  String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  deliveryAddresses DeliveryAddresses[]
+  collectedCoupons  CollectedCoupons[]
+  Order             Order[]
+
+  @@map("customers")
+  @@schema("tenantSpecific")
+}
+
+model Payment {
+  id              Int   @id @default(autoincrement()) @map("payment_id")
+  amount          Float
+  paymentStatusId Int
+  paymentMethodId Int   @map("payment_method_id")
+  orderId         Int   @unique @map("order_id")
+
+  paymentMethod PaymentMethods @relation(fields: [paymentMethodId], references: [id])
+  paymentStatus PaymentStatus  @relation(fields: [paymentStatusId], references: [id])
+  order         Order          @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("payments")
+  @@schema("tenantSpecific")
+}
+
+model Order {
+  id                Int   @id @default(autoincrement()) @map("order_id")
+  totalPrice        Float @map("total_price")
+  totalDiscount     Float @map("total_discount")
+  finalPrice        Float @map("final_price")
+  shippingFee       Float @map("shipping_fee")
+  buyerId           Int   @map("buyer_id")
+  deliveryAddressId Int   @map("delivery_address_id")
+  currentStatusId   Int   @map("current_status_id")
+
+  buyer           Customer          @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  currentStatus   OrderStatus       @relation(fields: [currentStatusId], references: [id])
+  deliveryAddress DeliveryAddresses @relation(fields: [deliveryAddressId], references: [id])
+  Payment         Payment?
+  OrderDetail     OrderDetail[]
+  usedCouponId    Int?              @map("used_coupon_id")
+  usedCoupon      Coupon?           @relation(fields: [usedCouponId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("orders")
+  @@schema("tenantSpecific")
+}
+
+model OrderDetail {
+  orderId   Int   @map("order_id")
+  variantId Int   @map("variant_id")
+  quantity  Int
+  price     Float
+  discount  Float @default(0)
+
+  order   Order    @relation(fields: [orderId], references: [id])
+  variant Variants @relation(fields: [variantId], references: [id])
+
+  @@id([orderId, variantId])
+  @@map("order_details")
+  @@schema("tenantSpecific")
+}
+
+model Coupon {
+  id                Int      @id @default(autoincrement()) @map("coupon_id")
+  code              String   @unique
+  discountType      String
+  discountValue     Float
+  startDate         DateTime @map("start_date")
+  endDate           DateTime @map("end_date")
+  quantity          Int
+  visible           Boolean  @default(true)
+  collectedQuantity Int      @default(0) @map("collected_quantity")
+  currentUse        Int      @default(0) @map("current_use")
+  minimumPriceToUse Float    @map("minumin_price_to_use")
+
+  accountsCollected CollectedCoupons[]
+  ordersUsed        Order[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("coupons")
+  @@schema("tenantSpecific")
+}
+
+model CollectedCoupons {
+  customerId Int     @map("customer_id")
+  couponId   Int     @map("coupon_id")
+  used       Boolean @default(false)
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  coupon   Coupon   @relation(fields: [couponId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@id([customerId, couponId])
+  @@map("collected_coupons")
   @@schema("tenantSpecific")
 }

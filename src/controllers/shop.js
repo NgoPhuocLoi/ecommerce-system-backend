@@ -8,7 +8,7 @@ const shopController = {
     new CreatedResponse({
       metadata: await shopService.create({
         accountId: auth.userId,
-        name: req.body.name,
+        ...req.body,
       }),
     }).send(res);
   },
@@ -20,6 +20,12 @@ const shopController = {
       metadata: await shopService.getByAccountId({
         accountId: auth.userId,
       }),
+    }).send(res);
+  },
+
+  getByDomain: async (req, res) => {
+    new OKResponse({
+      metadata: await shopService.getByDomain(req.params.domain),
     }).send(res);
   },
 };

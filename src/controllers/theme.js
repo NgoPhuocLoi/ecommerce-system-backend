@@ -55,7 +55,10 @@ const themeController = {
   getPagesInTheme: async (req, res) => {
     const themeId = Number(req.params.id);
     new OKResponse({
-      metadata: await themeService.getPagesInTheme(themeId),
+      metadata: await themeService.getPagesInTheme(
+        themeId,
+        req.query.includeLayout
+      ),
     }).send(res);
   },
 

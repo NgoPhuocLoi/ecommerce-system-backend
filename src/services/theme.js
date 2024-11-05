@@ -1,10 +1,11 @@
 const prismaClient = require("../config/prismaClient");
 
 const themeService = {
-  createTheme: async ({ name, description }) => {
+  createTheme: async ({ name, description, recommendedForCategoryId }) => {
     const newTheme = await prismaClient.themes.create({
       data: {
         name,
+        recommendedForCategoryId: recommendedForCategoryId ?? null,
         description,
       },
     });
@@ -40,6 +41,7 @@ const themeService = {
   },
 
   updateTheme: async (id, updatedData) => {
+    console.log({ id, updatedData });
     const updatedTheme = await prismaClient.themes.update({
       where: {
         id,
@@ -102,7 +104,19 @@ const themeService = {
     return updatedPages;
   },
 
-  getPagesInTheme: async (themeId) => {
+  getPagesInTheme: async (themeId, includeLayout) => {
+    const selectOptions = {
+      id: true,
+      name: true,
+      showInNavigation: true,
+      link: true,
+      position: true,
+    };
+
+    if (includeLayout) {
+      selectOptions.layout = true;
+    }
+
     const pages = await prismaClient.defaultOnlineShopPages.findMany({
       where: {
         themeId,
@@ -110,13 +124,7 @@ const themeService = {
       orderBy: {
         position: "desc",
       },
-      select: {
-        id: true,
-        name: true,
-        showInNavigation: true,
-        link: true,
-        position: true,
-      },
+      select: selectOptions,
     });
     return pages;
   },

@@ -5,6 +5,7 @@ const { asyncHandler } = require("../../middlewares/asyncHandler");
 const { validate } = require("../../middlewares/validation");
 const { validCategory } = require("../../middlewares/validation/category");
 const { validProduct } = require("../../middlewares/validation/product");
+const { requireAuth } = require("@clerk/express");
 
 router.post(
   "/",
@@ -26,6 +27,7 @@ router.post(
     .withMessage("cost must be a numeric"),
   body("categoryId").custom(validCategory),
   validate,
+  requireAuth,
   asyncHandler(productController.create)
 );
 
@@ -35,12 +37,14 @@ router.put(
   "/:productId",
   param("productId").custom(validProduct),
   validate,
+  requireAuth,
   asyncHandler(productController.update)
 );
 router.delete(
   "/:productId",
   param("productId").custom(validProduct),
   validate,
+  requireAuth,
   asyncHandler(productController.delete)
 );
 
