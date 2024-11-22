@@ -52,6 +52,17 @@ const requiredValidShopIdHeader = async (req, _, next) => {
   }
 };
 
+const requireShopIdHeader = (req, _, next) => {
+  const shopId = getShopIdFromRequest(req);
+
+  if (!shopId) {
+    next(new BadRequest("Shop ID is missing"));
+  }
+
+  req.shopId = shopId;
+  next();
+};
+
 const getTokenFromRequest = (req) => {
   const requestBearer = req.headers.authorization;
 
@@ -64,4 +75,9 @@ const getTokenFromRequest = (req) => {
   return token;
 };
 
-module.exports = { authentication, permission, requiredValidShopIdHeader };
+module.exports = {
+  authentication,
+  permission,
+  requiredValidShopIdHeader,
+  requireShopIdHeader,
+};

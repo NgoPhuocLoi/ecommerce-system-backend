@@ -22,16 +22,12 @@ spec:
     spec:
       containers:
         - name: ecommerce-system-backend-deployment-container
-          image: <IMAGE>
+          image: ngophuocloi/ecommerce-system-backend:azure
           ports:
             - containerPort: 8888
-          env:
-            - name: DATABASE_HOST
-              value: ep-dry-morning-a1wg43tt-pooler.ap-southeast-1.aws.neon.tech
-            - name: DATABASE_PORT
-              value: "5432"
-            - name: DATABASE_NAME
-              value: ecommerce-system-db
+          envFrom:
+            - secretRef:
+                name:  ecommerce-system-backend-secret
           resources:
             requests:
               cpu: 100m

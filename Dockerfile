@@ -12,9 +12,8 @@ RUN npm ci
 
 COPY --chown=node:node . .
 
-RUN npx prisma generate
+RUN npx prisma db deploy
 
 EXPOSE 8888
 
 CMD [ "node", "server.js" ]
-

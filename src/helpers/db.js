@@ -41,7 +41,7 @@ const updateById = async (relation, id, updatedData) => {
   return result;
 };
 
-const deleteById = async (relation, id, updatedData) => {
+const deleteById = async (relation, id) => {
   const result = await sql`DELETE FROM ${sql(
     relation
   )} WHERE id = ${id} RETURNING *;`;

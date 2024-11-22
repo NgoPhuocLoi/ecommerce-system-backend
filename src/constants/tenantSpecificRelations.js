@@ -7,6 +7,8 @@ const PRODUCT_VARIANTS = "variants";
 const VARIANT_HAS_OPTION_WITH_VALUE = "variant_has_option_with_value";
 const ONLINE_SHOP_PAGES = "online_shop_pages";
 const ONLINE_SHOPS = "online_shops";
+const CUSTOMERS = "customers";
+const ITEMS_IN_CART = "items_in_cart";
 
 module.exports = {
   PRODUCTS,
@@ -18,4 +20,6 @@ module.exports = {
   VARIANT_HAS_OPTION_WITH_VALUE,
   ONLINE_SHOP_PAGES,
   ONLINE_SHOPS,
+  CUSTOMERS,
+  ITEMS_IN_CART,
 };

@@ -1,5 +1,8 @@
 const db = require("../helpers/db");
-const { getTenantSpecificRelation } = require("../utils");
+const {
+  getTenantSpecificRelation,
+  convertToObjectWithCamelCase,
+} = require("../utils");
 const {
   PRODUCTS,
   PRODUCTS_IMAGES,
@@ -209,11 +212,15 @@ const productService = {
       getTenantSpecificRelation(shopId, PRODUCT_ATTRIBUTES)
     )} WHERE product_id = ${productId};`;
 
+    // const variantsQuery = sql`SELECT * FROM ${sql(
+    //   getTenantSpecificRelation(shopId, PRODUCT_VARIANTS)
+    // )} a INNER JOIN ${sql(
+    //   getTenantSpecificRelation(shopId, VARIANT_HAS_OPTION_WITH_VALUE)
+    // )} b ON a.id = b.variant_id WHERE product_id = ${productId} GROUP BY variant_id;`;
+
     const variantsQuery = sql`SELECT * FROM ${sql(
       getTenantSpecificRelation(shopId, PRODUCT_VARIANTS)
-    )} a INNER JOIN ${sql(
-      getTenantSpecificRelation(shopId, VARIANT_HAS_OPTION_WITH_VALUE)
-    )} b ON a.id = b.variant_id WHERE product_id = ${productId};`;
+    )} WHERE product_id = ${productId};`;
 
     const [productImages, category, attributes, variants] = await Promise.all([
       productImagesQuery,
@@ -226,6 +233,13 @@ const productService = {
       attribute.values = await sql`SELECT * FROM ${sql(
         getTenantSpecificRelation(shopId, ATTRIBUTE_VALUES)
       )} WHERE attribute_id = ${attribute.id};`;
+    }
+
+    for (let variant of variants) {
+      const infos = await sql`SELECT * FROM ${sql(
+        getTenantSpecificRelation(shopId, VARIANT_HAS_OPTION_WITH_VALUE)
+      )} WHERE variant_id = ${variant.id};`;
+      variant.attributesInfo = infos.map(convertToObjectWithCamelCase);
     }
 
     product.category = category;

@@ -14,7 +14,7 @@ const onlineShopService = {
     const pages =
       await sql`SELECT id, name, show_in_navigation, position, created_by_default, link FROM ${sql(
         getTenantSpecificRelation(shopId, ONLINE_SHOP_PAGES)
-      )};`;
+      )} ORDER BY position;`;
 
     return pages.map(convertToObjectWithCamelCase);
   },

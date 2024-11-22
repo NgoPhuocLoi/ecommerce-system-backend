@@ -146,6 +146,14 @@ CREATE TABLE "tenantSpecific"."payments" (
     CONSTRAINT "payments_pkey" PRIMARY KEY ("payment_id")
 );
 
+CREATE TABLE "tenantSpecific"."items_in_cart" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "variant_id" INTEGER NOT NULL,
+    "customer_id" INTEGER NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "price_per_item" DOUBLE PRECISION NOT NULL
+);
+
 CREATE TABLE "tenantSpecific"."orders" (
     "order_id" SERIAL NOT NULL,
     "total_price" DOUBLE PRECISION NOT NULL,
@@ -249,3 +257,7 @@ ALTER TABLE "tenantSpecific"."order_details" ADD CONSTRAINT "order_details_varia
 ALTER TABLE "tenantSpecific"."collected_coupons" ADD CONSTRAINT "collected_coupons_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "tenantSpecific"."customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE "tenantSpecific"."collected_coupons" ADD CONSTRAINT "collected_coupons_coupon_id_fkey" FOREIGN KEY ("coupon_id") REFERENCES "tenantSpecific"."coupons"("coupon_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE "tenantSpecific"."items_in_cart" ADD constraint "items_in_cart_fk_variant" FOREIGN KEY ("variant_id") references "tenantSpecific"."variants"("id") ON DELETE CASCADE;
+
+ALTER TABLE "tenantSpecific"."items_in_cart" ADD constraint "items_in_cart_fk_customer" FOREIGN KEY ("customer_id") references "tenantSpecific"."customers"("id") ON DELETE CASCADE;
