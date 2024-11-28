@@ -54,8 +54,9 @@ class GiaoHangNhanhService {
         to_district: toDistrictId,
       },
     });
-
-    return (await res.json()).data;
+    const jsonData = await res.json();
+    console.log({ jsonData });
+    return jsonData.data;
   }
 
   static async calculateOrderFee(

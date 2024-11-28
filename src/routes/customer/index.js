@@ -29,5 +29,6 @@ router.get(
 );
 
 router.use("/cart", authentication, require("../cart"));
+router.use("/address", authentication, require("./address"));
 
 module.exports = router;

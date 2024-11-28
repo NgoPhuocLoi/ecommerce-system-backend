@@ -1,24 +1,21 @@
-// const { register, login, checkValidToken } = require("../../controllers/auth");
-// const router = require("express").Router();
-// const { body, check } = require("express-validator");
-// const { validate, uniqueEmail } = require("../../middlewares/validation");
-// const { asyncHandler } = require("../../middlewares/asyncHandler");
-// const { authentication } = require("../../middlewares/auth");
+const { register } = require("../../controllers/auth");
+const router = require("express").Router();
+const { asyncHandler } = require("../../middlewares/asyncHandler");
 
-// router.post(
-//   "/register",
-//   // body("firstName").notEmpty().withMessage("First name is missing!"),
-//   // body("lastName").notEmpty().withMessage("Last name is missing!"),
-//   // body("email").isEmail().withMessage("Invalid email!"),
-//   // // .custom(uniqueEmail),
-//   // body("password")
-//   //   .notEmpty()
-//   //   .withMessage("Password is missing!")
-//   //   .isLength({ min: 8 })
-//   //   .withMessage("Password should have at least 8 characters!"),
-//   // validate,
-//   asyncHandler(register)
-// );
+router.post(
+  "/register",
+  // body("firstName").notEmpty().withMessage("First name is missing!"),
+  // body("lastName").notEmpty().withMessage("Last name is missing!"),
+  // body("email").isEmail().withMessage("Invalid email!"),
+  // // .custom(uniqueEmail),
+  // body("password")
+  //   .notEmpty()
+  //   .withMessage("Password is missing!")
+  //   .isLength({ min: 8 })
+  //   .withMessage("Password should have at least 8 characters!"),
+  // validate,
+  asyncHandler(register)
+);
 
 // // router.post(
 // //   "/login",
@@ -53,4 +50,4 @@
 // //   AuthController.getLoggedInAccount
 // // );
 
-// module.exports = router;
+module.exports = router;

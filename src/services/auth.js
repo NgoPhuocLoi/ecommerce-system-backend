@@ -1,7 +1,7 @@
 const { BadRequest } = require("../responses/error");
 const prisma = require("../config/prismaClient");
 const argon2 = require("argon2");
-const { generateTokens } = require("../heplers/auth");
+const { generateTokens } = require("../helpers/auth");
 
 const authService = {
   register: async ({ first_name, last_name, email_addresses, id }) => {

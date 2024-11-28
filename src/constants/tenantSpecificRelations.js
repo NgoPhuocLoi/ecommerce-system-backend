@@ -9,6 +9,7 @@ const ONLINE_SHOP_PAGES = "online_shop_pages";
 const ONLINE_SHOPS = "online_shops";
 const CUSTOMERS = "customers";
 const ITEMS_IN_CART = "items_in_cart";
+const DELIVERY_ADDRESSES = "delivery_addresses";
 
 module.exports = {
   PRODUCTS,
@@ -22,4 +23,5 @@ module.exports = {
   ONLINE_SHOPS,
   CUSTOMERS,
   ITEMS_IN_CART,
+  DELIVERY_ADDRESSES,
 };

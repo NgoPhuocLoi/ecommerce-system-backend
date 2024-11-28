@@ -7,8 +7,9 @@ const {
 const router = require("express").Router();
 
 router.use("/version", require("./version"));
-// router.use("/auth", require("./auth"));
+router.use("/auth", require("./auth"));
 router.use("/categories", require("./category"));
+router.use("/shipping", require("./shipping"));
 router.use("/addresses", require("./address"));
 router.use("/customers", require("./customer"));
 
