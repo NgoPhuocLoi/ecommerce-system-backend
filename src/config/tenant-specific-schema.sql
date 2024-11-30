@@ -137,7 +137,7 @@ CREATE TABLE "tenantSpecific"."customers" (
 CREATE TABLE "tenantSpecific"."payments" (
     "payment_id" SERIAL NOT NULL,
     "amount" DOUBLE PRECISION NOT NULL,
-    "paymentStatusId" INTEGER NOT NULL,
+    "payment_status_id" INTEGER NOT NULL,
     "payment_method_id" INTEGER NOT NULL,
     "order_id" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -238,7 +238,7 @@ ALTER TABLE "tenantSpecific"."delivery_addresses" ADD CONSTRAINT "delivery_addre
 
 ALTER TABLE "tenantSpecific"."payments" ADD CONSTRAINT "payments_payment_method_id_fkey" FOREIGN KEY ("payment_method_id") REFERENCES "public"."payment_methods"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE "tenantSpecific"."payments" ADD CONSTRAINT "payments_paymentStatusId_fkey" FOREIGN KEY ("paymentStatusId") REFERENCES "public"."payment_status"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tenantSpecific"."payments" ADD CONSTRAINT "payments_payment_status_id_fkey" FOREIGN KEY ("payment_status_id") REFERENCES "public"."payment_status"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE "tenantSpecific"."payments" ADD CONSTRAINT "payments_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "tenantSpecific"."orders"("order_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

@@ -8,6 +8,7 @@ const {
   authentication,
 } = require("../../middlewares/auth");
 
+router.use("/payments", require("../payment"));
 router.use(requireShopIdHeader);
 
 router.post(
@@ -30,5 +31,6 @@ router.get(
 
 router.use("/cart", authentication, require("../cart"));
 router.use("/address", authentication, require("./address"));
+router.use("/orders", authentication, require("../order"));
 
 module.exports = router;

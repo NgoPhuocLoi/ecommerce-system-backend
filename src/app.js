@@ -7,6 +7,7 @@ const {
 } = require("./middlewares/errorHandler");
 const cors = require("cors");
 const { clerkMiddleware } = require("@clerk/express");
+const { connectRedis } = require("./config/redisClient");
 
 const logger = winston.createLogger({
   // Log only if level is less than (meaning more severe) or equal to this
@@ -23,6 +24,7 @@ const logger = winston.createLogger({
 });
 
 const app = express();
+// connectRedis();
 
 app.use(compression());
 app.use(express.json());

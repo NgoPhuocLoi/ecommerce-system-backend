@@ -5,6 +5,7 @@ const {
 } = require("../utils");
 const sql = require("../config/db");
 const db = require("../helpers/db");
+const { getById } = require("./customer");
 
 const customerAddressService = {
   create: async (
@@ -63,6 +64,19 @@ const customerAddressService = {
     )} WHERE customer_id = ${customerId} ORDER BY is_default DESC`;
 
     return addresses.map(convertToObjectWithCamelCase);
+  },
+
+  getById: async (shopId, customerId, addressId) => {
+    const deliveryAddressRel = getTenantSpecificRelation(
+      shopId,
+      DELIVERY_ADDRESSES
+    );
+
+    const [address] = await sql`SELECT * FROM ${sql(
+      deliveryAddressRel
+    )} WHERE customer_id = ${customerId} AND delivery_address_id = ${addressId}`;
+
+    return convertToObjectWithCamelCase(address);
   },
 };
 

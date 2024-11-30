@@ -101,7 +101,7 @@ const cartService = {
         )} i
             INNER JOIN ${sql(variantsRelation)} v ON v.id = i.variant_id
             INNER JOIN ${sql(productsRelation)} p ON v.product_id = p.id
-            WHERE customer_id = 1) as temp
+            WHERE customer_id = ${customerId}) as temp
         INNER JOIN ${sql(
           variantHasOptionWithValueRelation
         )} vov ON temp.variant_id = vov.variant_id
@@ -129,7 +129,9 @@ const cartService = {
       shopId,
       ITEMS_IN_CART
     );
-    const result = await db.deleteById(itemsInCartRelation, itemId);
+    const result = await sql`DELETE FROM ${sql(
+      itemsInCartRelation
+    )} WHERE id = ${itemId} AND customer_id = ${customerId};`;
     return `${result.length} item(s) deleted`;
   },
 

@@ -12,7 +12,7 @@ RUN npm ci
 
 COPY --chown=node:node . .
 
-RUN npx prisma db deploy
+RUN npx prisma generate
 
 EXPOSE 8888
 
