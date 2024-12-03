@@ -21,5 +21,6 @@ router.use("/themes", require("./theme"));
 router.use(requiredValidShopIdHeader);
 
 router.use("/uploaded-images", require("./uploaded-images"));
+router.use("/shop-management", require("./shop-management"));
 
 module.exports = router;
