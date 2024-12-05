@@ -114,7 +114,7 @@ const paymentController = {
       // res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
       const [shop] = await sql`SELECT domain FROM shops WHERE id = ${shopId}`;
       res.redirect(
-        `http://${shop.domain}.localhost:3001/tai-khoan/don-hang/${orderId}?code=${vnp_Params["vnp_ResponseCode"]}`
+        `http://${shop.domain}.${process.env.FRONTEND_DOMAIN}/tai-khoan/don-hang/${orderId}?code=${vnp_Params["vnp_ResponseCode"]}`
       );
     } else {
       res.json({ code: "97" });
