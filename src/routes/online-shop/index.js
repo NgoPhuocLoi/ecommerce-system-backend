@@ -31,4 +31,10 @@ router.put(
   asyncHandler(onlineShopController.updatePage)
 );
 
+router.put(
+  "/default-layout",
+  requireAuth,
+  asyncHandler(onlineShopController.updateDefaultLayout)
+);
+
 module.exports = router;

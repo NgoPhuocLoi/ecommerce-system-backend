@@ -20,9 +20,16 @@ const onlineShopService = {
   },
 
   getOnlineShop: async (shopId) => {
-    const shop = await db.find(getTenantSpecificRelation(shopId, ONLINE_SHOPS));
+    const shop =
+      await sql`SELECT domain from public.shops WHERE id = ${shopId};`;
+    const onlineShops = await db.find(
+      getTenantSpecificRelation(shopId, ONLINE_SHOPS)
+    );
 
-    return shop.map(convertToObjectWithCamelCase);
+    return onlineShops.map((oShop) => ({
+      ...convertToObjectWithCamelCase(oShop),
+      domain: shop[0]?.domain,
+    }));
   },
 
   getPageLayout: async (shopId, pageId) => {
@@ -33,10 +40,17 @@ const onlineShopService = {
     return page[0];
   },
 
-  createPage: async (shopId, { name, layout = "" }) => {
+  createPage: async (
+    shopId,
+    { name, layout = "", showInNavigation = true, link, position }
+  ) => {
     const page = {
       name,
       layout,
+      showInNavigation,
+      link,
+      position,
+      createdByDefault: false,
     };
 
     const result = await db.create(
@@ -53,6 +67,14 @@ const onlineShopService = {
       pageId,
       updatedData
     );
+
+    return result;
+  },
+
+  updateDefaultLayout: async (shopId, updatedData) => {
+    const result = await sql`UPDATE ${sql(
+      getTenantSpecificRelation(shopId, ONLINE_SHOPS)
+    )} SET ${sql(updatedData)} RETURNING *;`;
 
     return result;
   },

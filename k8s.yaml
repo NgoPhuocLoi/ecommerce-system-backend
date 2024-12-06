@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: ecommerce-system-backend-deployment-container
-          image: ngophuocloi/ecommerce-system-backend:gcp-v3
+          image: ngophuocloi/ecommerce-system-backend:gcp-v4
           ports:
             - containerPort: 8888
           envFrom:

@@ -25,6 +25,13 @@ const onlineShopController = {
     }).send(res);
   },
 
+  updateDefaultLayout: async (req, res) => {
+    const shopId = getShopIdFromRequest(req);
+    new OKResponse({
+      metadata: await onlineShopService.updateDefaultLayout(shopId, req.body),
+    }).send(res);
+  },
+
   createPage: async (req, res) => {
     const shopId = getShopIdFromRequest(req);
     new CreatedResponse({
